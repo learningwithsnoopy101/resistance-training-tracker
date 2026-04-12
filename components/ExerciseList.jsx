@@ -23,7 +23,7 @@ function groupByDate(exercises) {
   return Object.entries(groups).sort((a, b) => b[0].localeCompare(a[0]));
 }
 
-function ExerciseRow({ exercise, onEdit, onDelete, isEditing }) {
+function ExerciseRow({ exercise, onEdit, onDelete, onCopy, isEditing }) {
   const style = TYPE_STYLES[exercise.type] || DEFAULT_STYLE;
 
   return (
@@ -74,6 +74,16 @@ function ExerciseRow({ exercise, onEdit, onDelete, isEditing }) {
       {/* Actions */}
       <div className="flex items-center gap-1 flex-shrink-0">
         <button
+          onClick={() => onCopy(exercise)}
+          title="Copy to entry"
+          className="p-1.5 text-green-600 hover:bg-green-100 rounded-md transition focus:outline-none focus:ring-2 focus:ring-green-400"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+        </button>
+        <button
           onClick={() => onEdit(exercise)}
           title="Edit"
           className="p-1.5 text-blue-600 hover:bg-blue-100 rounded-md transition focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -100,7 +110,7 @@ function ExerciseRow({ exercise, onEdit, onDelete, isEditing }) {
   );
 }
 
-export default function ExerciseList({ exercises, onEdit, onDelete, editingId }) {
+export default function ExerciseList({ exercises, onEdit, onDelete, onCopy, editingId }) {
   if (exercises.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
@@ -131,6 +141,7 @@ export default function ExerciseList({ exercises, onEdit, onDelete, editingId })
                   exercise={exercise}
                   onEdit={onEdit}
                   onDelete={onDelete}
+                  onCopy={onCopy}
                   isEditing={editingId === exercise.id}
                 />
               ))}

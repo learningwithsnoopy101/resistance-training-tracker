@@ -18,6 +18,7 @@ export default function App() {
   });
   const [editingId, setEditingId] = useState(null);
   const [editingData, setEditingData] = useState(null);
+  const [copyData, setCopyData] = useState(null);
   const [mobileTab, setMobileTab] = useState('log'); // 'log' | 'history'
 
   useEffect(() => {
@@ -59,6 +60,11 @@ export default function App() {
     setEditingData(null);
   };
 
+  const handleCopyExercise = (exercise) => {
+    setCopyData(exercise);
+    setMobileTab('log');
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
 
@@ -90,6 +96,8 @@ export default function App() {
             onSubmit={(data) => { handleAddExercise(data); setMobileTab('history'); }}
             editingData={editingData}
             onCancelEdit={handleCancelEdit}
+            copyData={copyData}
+            onCopyConsumed={() => setCopyData(null)}
           />
           <div className="mt-4">
             <BulkImport onImport={(items) => {
@@ -112,6 +120,7 @@ export default function App() {
             exercises={exercises}
             onEdit={handleEditExercise}
             onDelete={handleDeleteExercise}
+            onCopy={handleCopyExercise}
             editingId={editingId}
           />
         </div>

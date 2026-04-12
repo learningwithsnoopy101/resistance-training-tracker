@@ -58,7 +58,7 @@ function parseQuickEntry(text) {
   };
 }
 
-export default function ExerciseForm({ onSubmit, editingData, onCancelEdit }) {
+export default function ExerciseForm({ onSubmit, editingData, onCancelEdit, copyData, onCopyConsumed }) {
   const [mode, setMode] = useState('quick'); // 'quick' | 'full'
   const [formData, setFormData] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState({});
@@ -76,6 +76,34 @@ export default function ExerciseForm({ onSubmit, editingData, onCancelEdit }) {
       setMode('full');
     }
   }, [editingData]);
+
+  // When copying, pre-fill current mode
+  useEffect(() => {
+    if (copyData) {
+      if (mode === 'quick') {
+        const parts = [copyData.type, copyData.name, `${copyData.sets}x${copyData.reps}`];
+        if (copyData.weight) parts.push(`${copyData.weight}${copyData.unit}`);
+        if (copyData.focus) parts.push(copyData.focus);
+        if (copyData.isMaxWeight) parts.push('max weight');
+        if (copyData.isMaxReps) parts.push('max reps');
+        setQuickText(parts.join(', '));
+      } else {
+        setFormData({
+          ...EMPTY_FORM(),
+          name: copyData.name,
+          type: copyData.type,
+          sets: copyData.sets,
+          reps: copyData.reps,
+          weight: copyData.weight,
+          unit: copyData.unit,
+          focus: copyData.focus || '',
+          isMaxWeight: copyData.isMaxWeight,
+          isMaxReps: copyData.isMaxReps,
+        });
+      }
+      onCopyConsumed();
+    }
+  }, [copyData]);
 
   // Full form handlers
   const handleChange = (e) => {
