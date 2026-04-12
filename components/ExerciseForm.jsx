@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { PREDEFINED_EXERCISES } from '@/lib/exercises';
 
 const EXERCISE_TYPES = ['Upper Body', 'Lower Body', 'Abs', 'Peak 8'];
 
@@ -162,11 +163,29 @@ export default function ExerciseForm({ onSubmit, editingData, onCancelEdit }) {
       {/* Quick entry */}
       {mode === 'quick' && !isEditing && (
         <form onSubmit={handleQuickSubmit} className="space-y-3">
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Pick an exercise (optional)</label>
+            <select
+              onChange={e => {
+                const ex = PREDEFINED_EXERCISES.find(x => x.name === e.target.value);
+                if (ex) setQuickText(`${ex.type}, ${ex.name}, `);
+                e.target.value = '';
+              }}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              defaultValue=""
+            >
+              <option value="" disabled>Select exercise to pre-fill...</option>
+              {['Lower Body', 'Upper Body', 'Abs', 'Peak 8'].map(type => (
+                <optgroup key={type} label={type}>
+                  {PREDEFINED_EXERCISES.filter(ex => ex.type === type).map(ex => (
+                    <option key={ex.name} value={ex.name}>{ex.name}</option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
+          </div>
           <p className="text-xs text-gray-500">
             Format: <span className="font-mono">Type, Name, SetsxReps, Weight, Focus, Max flag</span>
-          </p>
-          <p className="text-xs text-gray-400">
-            Example: <span className="font-mono">Lower Body, Squats, 3x10, 135lbs, Push, max weight</span>
           </p>
           <textarea
             value={quickText}
@@ -200,6 +219,27 @@ export default function ExerciseForm({ onSubmit, editingData, onCancelEdit }) {
       {/* Full form */}
       {(mode === 'full' || isEditing) && (
         <form onSubmit={handleFullSubmit} className="space-y-5">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Pick an exercise (optional)</label>
+            <select
+              onChange={e => {
+                const ex = PREDEFINED_EXERCISES.find(x => x.name === e.target.value);
+                if (ex) setFormData(prev => ({ ...prev, name: ex.name, type: ex.type }));
+                e.target.value = '';
+              }}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              defaultValue=""
+            >
+              <option value="" disabled>Select exercise to pre-fill...</option>
+              {['Lower Body', 'Upper Body', 'Abs', 'Peak 8'].map(type => (
+                <optgroup key={type} label={type}>
+                  {PREDEFINED_EXERCISES.filter(ex => ex.type === type).map(ex => (
+                    <option key={ex.name} value={ex.name}>{ex.name}</option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
+          </div>
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
               Exercise Name <span className="text-red-500">*</span>
