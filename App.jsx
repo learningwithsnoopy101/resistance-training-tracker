@@ -6,20 +6,16 @@ import ExerciseList from '@/components/ExerciseList';
 const STORAGE_KEY = 'resistanceTrainingExercises';
 
 export default function App() {
-  const [exercises, setExercises] = useState([]);
+  const [exercises, setExercises] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
   const [editingId, setEditingId] = useState(null);
   const [editingData, setEditingData] = useState(null);
-
-  useEffect(() => {
-    try {
-      const savedExercises = localStorage.getItem(STORAGE_KEY);
-      if (savedExercises) {
-        setExercises(JSON.parse(savedExercises));
-      }
-    } catch (error) {
-      console.error('Failed to load exercises from localStorage:', error);
-    }
-  }, []);
 
   useEffect(() => {
     try {
