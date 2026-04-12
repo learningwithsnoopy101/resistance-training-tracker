@@ -27,52 +27,47 @@ function ExerciseRow({ exercise, onEdit, onDelete, onCopy, isEditing }) {
   const style = TYPE_STYLES[exercise.type] || DEFAULT_STYLE;
 
   return (
-    <div className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
+    <div className={`flex gap-2 px-3 py-2.5 rounded-lg transition-colors ${
       isEditing ? 'bg-blue-50 ring-1 ring-blue-400' : 'hover:bg-gray-50'
     }`}>
       {/* Type color bar */}
       <div className={`w-1 self-stretch rounded-full flex-shrink-0 ${style.bar}`} />
 
-      {/* Name + type badge */}
-      <div className="flex items-center gap-2 w-52 flex-shrink-0 min-w-0">
-        <span className="font-medium text-gray-900 text-sm truncate">{exercise.name}</span>
-        <span className={`flex-shrink-0 text-xs px-2 py-0.5 rounded-full font-medium ${style.badge}`}>
-          {exercise.type}
-        </span>
-      </div>
+      {/* Content */}
+      <div className="flex-1 min-w-0">
+        {/* Top row: name + type badge */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="font-medium text-gray-900 text-sm">{exercise.name}</span>
+          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${style.badge}`}>
+            {exercise.type}
+          </span>
+        </div>
 
-      {/* Stats */}
-      <div className="flex items-center gap-4 flex-1 min-w-0 text-sm text-gray-700">
-        <span className="font-mono font-semibold text-gray-900 flex-shrink-0">
-          {exercise.sets}×{exercise.reps}
-        </span>
-        {exercise.weight && (
-          <span className="flex-shrink-0 text-gray-600">
-            {exercise.weight} {exercise.unit}
+        {/* Bottom row: stats + actions */}
+        <div className="flex items-center gap-3 mt-1 flex-wrap">
+          <span className="font-mono font-semibold text-gray-900 text-sm">
+            {exercise.sets}×{exercise.reps}
           </span>
-        )}
-        {exercise.focus && (
-          <span className="flex-shrink-0 text-xs bg-orange-100 text-orange-600 px-1.5 py-0.5 rounded font-medium">
-            {exercise.focus}
-          </span>
-        )}
-        {exercise.isMaxWeight && (
-          <span className="flex-shrink-0 text-xs bg-yellow-100 text-yellow-800 px-1.5 py-0.5 rounded font-medium">
-            Max W
-          </span>
-        )}
-        {exercise.isMaxReps && (
-          <span className="flex-shrink-0 text-xs bg-yellow-100 text-yellow-800 px-1.5 py-0.5 rounded font-medium">
-            Max R
-          </span>
-        )}
-        {exercise.notes && (
-          <span className="text-xs text-gray-400 truncate italic">{exercise.notes}</span>
-        )}
-      </div>
+          {exercise.weight && (
+            <span className="text-xs text-gray-600">{exercise.weight} {exercise.unit}</span>
+          )}
+          {exercise.focus && (
+            <span className="text-xs bg-orange-100 text-orange-600 px-1.5 py-0.5 rounded font-medium">
+              {exercise.focus}
+            </span>
+          )}
+          {exercise.isMaxWeight && (
+            <span className="text-xs bg-yellow-100 text-yellow-800 px-1.5 py-0.5 rounded font-medium">Max W</span>
+          )}
+          {exercise.isMaxReps && (
+            <span className="text-xs bg-yellow-100 text-yellow-800 px-1.5 py-0.5 rounded font-medium">Max R</span>
+          )}
+          {exercise.notes && (
+            <span className="text-xs text-gray-400 italic truncate">{exercise.notes}</span>
+          )}
 
-      {/* Actions */}
-      <div className="flex items-center gap-1 flex-shrink-0">
+          {/* Actions inline with stats */}
+          <div className="flex items-center gap-1 ml-auto flex-shrink-0">
         <button
           onClick={() => onCopy(exercise)}
           title="Copy to entry"
@@ -105,6 +100,8 @@ function ExerciseRow({ exercise, onEdit, onDelete, onCopy, isEditing }) {
             <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
           </svg>
         </button>
+          </div>
+        </div>
       </div>
     </div>
   );
