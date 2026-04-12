@@ -3,6 +3,7 @@ import '@/styles/globals.css';
 import ExerciseForm from '@/components/ExerciseForm';
 import ExerciseList from '@/components/ExerciseList';
 import BulkImport from '@/components/BulkImport';
+import DataPortability from '@/components/DataPortability';
 
 const STORAGE_KEY = 'resistanceTrainingExercises';
 
@@ -70,6 +71,12 @@ export default function App() {
               const newExercises = items.map(ex => ({ ...ex, id: Date.now() + Math.random() }));
               setExercises(prev => [...newExercises, ...prev]);
             }} />
+          </div>
+          <div className="mt-4">
+            <DataPortability
+              exercises={exercises}
+              onImport={(data) => setExercises(data)}
+            />
           </div>
         </div>
 
