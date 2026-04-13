@@ -4,8 +4,6 @@ import { supabase } from '@/lib/supabase';
 import Auth from '@/components/Auth';
 import ExerciseForm from '@/components/ExerciseForm';
 import ExerciseList from '@/components/ExerciseList';
-import BulkImport from '@/components/BulkImport';
-import DataPortability from '@/components/DataPortability';
 
 export default function App() {
   const [session, setSession] = useState(null);
@@ -109,23 +107,6 @@ export default function App() {
     if (!error) setExercises(exercises.filter(ex => ex.id !== id));
   };
 
-  const handleMigrateFromLocalStorage = async () => {
-    try {
-      const saved = localStorage.getItem('resistanceTrainingExercises');
-      if (!saved) { alert('No local data found.'); return; }
-      const localExercises = JSON.parse(saved);
-      if (localExercises.length === 0) { alert('No local data found.'); return; }
-      const rows = localExercises.map(ex => toDb(ex));
-      const { data, error } = await supabase.from('exercises').insert(rows).select();
-      if (error) { alert('Migration failed: ' + error.message); return; }
-      setExercises(prev => [...data.map(fromDb), ...prev]);
-      localStorage.removeItem('resistanceTrainingExercises');
-      alert(`${data.length} exercises migrated successfully!`);
-    } catch (e) {
-      alert('Migration failed: ' + e.message);
-    }
-  };
-
   const handleCancelEdit = () => {
     setEditingId(null);
     setEditingData(null);
@@ -134,24 +115,6 @@ export default function App() {
   const handleCopyExercise = (exercise) => {
     setCopyData(exercise);
     setMobileTab('log');
-  };
-
-  const handleBulkImport = async (items) => {
-    const rows = items.map(ex => toDb(ex));
-    const { data, error } = await supabase.from('exercises').insert(rows).select();
-    if (!error) {
-      setExercises(prev => [...data.map(fromDb), ...prev]);
-      setMobileTab('history');
-    }
-  };
-
-  const handleImport = async (data) => {
-    const rows = data.map(ex => toDb(ex));
-    const { data: inserted, error } = await supabase.from('exercises').insert(rows).select();
-    if (!error) {
-      setExercises(prev => [...inserted.map(fromDb), ...prev]);
-      setMobileTab('history');
-    }
   };
 
   const handleSignOut = async () => {
@@ -175,22 +138,12 @@ export default function App() {
       {/* Top bar */}
       <div className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
         <h1 className="text-base font-bold text-gray-900">Resistance Tracker</h1>
-        <div className="flex items-center gap-3">
-          {localStorage.getItem('resistanceTrainingExercises') && (
-            <button
-              onClick={handleMigrateFromLocalStorage}
-              className="text-sm text-blue-600 hover:text-blue-800 font-medium transition"
-            >
-              Migrate local data →
-            </button>
-          )}
-          <button
-            onClick={handleSignOut}
-            className="text-sm text-gray-500 hover:text-gray-700 transition"
-          >
-            Sign out
-          </button>
-        </div>
+        <button
+          onClick={handleSignOut}
+          className="text-sm text-gray-500 hover:text-gray-700 transition"
+        >
+          Sign out
+        </button>
       </div>
 
       {/* Mobile tab bar */}
@@ -223,15 +176,6 @@ export default function App() {
             copyData={copyData}
             onCopyConsumed={() => setCopyData(null)}
           />
-          <div className="mt-4">
-            <BulkImport onImport={handleBulkImport} />
-          </div>
-          <div className="mt-4">
-            <DataPortability
-              exercises={exercises}
-              onImport={handleImport}
-            />
-          </div>
         </div>
 
         <div className={`flex-1 min-w-0 lg:block ${mobileTab === 'history' ? 'block' : 'hidden'}`}>
