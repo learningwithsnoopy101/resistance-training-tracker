@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { PREDEFINED_EXERCISES } from '@/lib/exercises';
+import { supabase } from '@/lib/supabase';
 
 const EXERCISE_TYPES = ['Upper Body', 'Lower Body', 'Abs', 'Peak 8'];
 
@@ -62,6 +62,17 @@ export default function ExerciseForm({ onSubmit, editingData, onCancelEdit, copy
   const [mode, setMode] = useState('quick'); // 'quick' | 'full'
   const [formData, setFormData] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState({});
+  const [exerciseLibrary, setExerciseLibrary] = useState([]);
+
+  // Load exercise library from Supabase
+  useEffect(() => {
+    supabase
+      .from('exercise_library')
+      .select('name, type')
+      .order('type')
+      .order('name')
+      .then(({ data }) => { if (data) setExerciseLibrary(data); });
+  }, []);
 
   // Quick entry state
   const [quickText, setQuickText] = useState('');
@@ -195,7 +206,7 @@ export default function ExerciseForm({ onSubmit, editingData, onCancelEdit, copy
             <label className="block text-xs font-medium text-gray-600 mb-1">Pick an exercise (optional)</label>
             <select
               onChange={e => {
-                const ex = PREDEFINED_EXERCISES.find(x => x.name === e.target.value);
+                const ex = exerciseLibrary.find(x => x.name === e.target.value);
                 if (ex) setQuickText(`${ex.type}, ${ex.name}, `);
                 e.target.value = '';
               }}
@@ -205,7 +216,7 @@ export default function ExerciseForm({ onSubmit, editingData, onCancelEdit, copy
               <option value="" disabled>Select exercise to pre-fill...</option>
               {['Lower Body', 'Upper Body', 'Abs', 'Peak 8'].map(type => (
                 <optgroup key={type} label={type}>
-                  {PREDEFINED_EXERCISES.filter(ex => ex.type === type).map(ex => (
+                  {exerciseLibrary.filter(ex => ex.type === type).map(ex => (
                     <option key={ex.name} value={ex.name}>{ex.name}</option>
                   ))}
                 </optgroup>
@@ -251,7 +262,7 @@ export default function ExerciseForm({ onSubmit, editingData, onCancelEdit, copy
             <label className="block text-sm font-medium text-gray-700 mb-1">Pick an exercise (optional)</label>
             <select
               onChange={e => {
-                const ex = PREDEFINED_EXERCISES.find(x => x.name === e.target.value);
+                const ex = exerciseLibrary.find(x => x.name === e.target.value);
                 if (ex) setFormData(prev => ({ ...prev, name: ex.name, type: ex.type }));
                 e.target.value = '';
               }}
@@ -261,7 +272,7 @@ export default function ExerciseForm({ onSubmit, editingData, onCancelEdit, copy
               <option value="" disabled>Select exercise to pre-fill...</option>
               {['Lower Body', 'Upper Body', 'Abs', 'Peak 8'].map(type => (
                 <optgroup key={type} label={type}>
-                  {PREDEFINED_EXERCISES.filter(ex => ex.type === type).map(ex => (
+                  {exerciseLibrary.filter(ex => ex.type === type).map(ex => (
                     <option key={ex.name} value={ex.name}>{ex.name}</option>
                   ))}
                 </optgroup>
