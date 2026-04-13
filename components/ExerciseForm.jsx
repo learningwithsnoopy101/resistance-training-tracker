@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
 
 const EXERCISE_TYPES = ['Upper Body', 'Lower Body', 'Abs', 'Peak 8'];
 
@@ -58,21 +57,10 @@ function parseQuickEntry(text) {
   };
 }
 
-export default function ExerciseForm({ onSubmit, editingData, onCancelEdit, copyData, onCopyConsumed }) {
+export default function ExerciseForm({ onSubmit, editingData, onCancelEdit, copyData, onCopyConsumed, exerciseLibrary = [] }) {
   const [mode, setMode] = useState('quick'); // 'quick' | 'full'
   const [formData, setFormData] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState({});
-  const [exerciseLibrary, setExerciseLibrary] = useState([]);
-
-  // Load exercise library from Supabase
-  useEffect(() => {
-    supabase
-      .from('exercise_library')
-      .select('name, type')
-      .order('type')
-      .order('name')
-      .then(({ data }) => { if (data) setExerciseLibrary(data); });
-  }, []);
 
   // Quick entry state
   const [quickText, setQuickText] = useState('');

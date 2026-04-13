@@ -9,6 +9,7 @@ export default function App() {
   const [session, setSession] = useState(null);
   const [sessionLoading, setSessionLoading] = useState(true);
   const [exercises, setExercises] = useState([]);
+  const [exerciseLibrary, setExerciseLibrary] = useState([]);
   const [loading, setLoading] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [editingData, setEditingData] = useState(null);
@@ -27,10 +28,22 @@ export default function App() {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Load exercises from Supabase when logged in
+  // Load exercises and exercise library from Supabase when logged in
   useEffect(() => {
-    if (session) fetchExercises();
+    if (session) {
+      fetchExercises();
+      fetchExerciseLibrary();
+    }
   }, [session]);
+
+  const fetchExerciseLibrary = async () => {
+    const { data } = await supabase
+      .from('exercise_library')
+      .select('name, type')
+      .order('type')
+      .order('name');
+    if (data) setExerciseLibrary(data);
+  };
 
   const fetchExercises = async () => {
     setLoading(true);
@@ -175,6 +188,7 @@ export default function App() {
             onCancelEdit={handleCancelEdit}
             copyData={copyData}
             onCopyConsumed={() => setCopyData(null)}
+            exerciseLibrary={exerciseLibrary}
           />
         </div>
 
