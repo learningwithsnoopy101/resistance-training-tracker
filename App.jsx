@@ -7,6 +7,7 @@ import ExerciseForm from '@/components/ExerciseForm';
 import ExerciseList from '@/components/ExerciseList';
 import TabNavigation from '@/components/TabNavigation';
 import Analytics from '@/components/Analytics';
+import SuggestedSession from '@/components/SuggestedSession';
 
 export default function App() {
   const [session, setSession] = useState(null);
@@ -43,7 +44,7 @@ export default function App() {
   const fetchExerciseLibrary = async () => {
     const { data } = await supabase
       .from('exercise_library')
-      .select('name, type, primary_muscle, secondary_muscles')
+      .select('name, type, primary_muscle, secondary_muscles, movement_pattern')
       .order('type')
       .order('name');
     if (data) setExerciseLibrary(data);
@@ -163,6 +164,11 @@ export default function App() {
         />
       </div>
       <div className="flex-1 min-w-0">
+        <SuggestedSession
+          exercises={exercises}
+          exerciseLibrary={exerciseLibrary}
+          onPick={setCopyData}
+        />
         {loading ? (
           <p className="text-ink-muted">Loading exercises...</p>
         ) : exercises.length === 0 ? (

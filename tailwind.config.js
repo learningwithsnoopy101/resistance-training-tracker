@@ -20,7 +20,7 @@ export default {
 
         // Text
         ink: {
-          DEFAULT:     '#2C2820', // primary text (warm near-black)
+          DEFAULT:     '#4A3F32', // primary text (warm brown)
           muted:       '#6B6354', // secondary text (warm brown-gray)
         },
 

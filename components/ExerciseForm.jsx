@@ -86,9 +86,9 @@ export default function ExerciseForm({ onSubmit, editingData, onCancelEdit, copy
 
   return (
     <div className="bg-cream rounded-card shadow-card border-[0.5px] border-taupe p-6">
-      <h2 className="text-h1-warm text-ink mb-5">
-        {isEditing ? 'Edit exercise' : 'Log exercise'}
-      </h2>
+      {isEditing && (
+        <h2 className="text-h1-warm text-ink mb-5">Edit exercise</h2>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
