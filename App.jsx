@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import '@/styles/globals.css';
 import { supabase } from '@/lib/supabase';
 import Auth from '@/components/Auth';
 import ExerciseForm from '@/components/ExerciseForm';
 import ExerciseList from '@/components/ExerciseList';
+import TabNavigation from '@/components/TabNavigation';
+import Analytics from '@/components/Analytics';
+
+const RECENT_LIMIT = 5;
 
 export default function App() {
   const [session, setSession] = useState(null);
@@ -14,7 +19,8 @@ export default function App() {
   const [editingId, setEditingId] = useState(null);
   const [editingData, setEditingData] = useState(null);
   const [copyData, setCopyData] = useState(null);
-  const [mobileTab, setMobileTab] = useState('log');
+
+  const navigate = useNavigate();
 
   // Auth state
   useEffect(() => {
@@ -110,7 +116,7 @@ export default function App() {
   const handleEditExercise = (exercise) => {
     setEditingId(exercise.id);
     setEditingData(exercise);
-    setMobileTab('log');
+    navigate('/');
   };
 
   const handleDeleteExercise = async (id) => {
@@ -125,7 +131,7 @@ export default function App() {
 
   const handleCopyExercise = (exercise) => {
     setCopyData(exercise);
-    setMobileTab('log');
+    navigate('/');
   };
 
   const handleSignOut = async () => {
@@ -143,74 +149,99 @@ export default function App() {
 
   if (!session) return <Auth />;
 
-  return (
-    <div className="min-h-screen bg-page">
+  const recentExercises = exercises.slice(0, RECENT_LIMIT);
 
-      {/* Top bar */}
-      <div className="bg-cream border-b-[0.5px] border-taupe px-4 py-3 flex items-center justify-between">
-        <h1 className="text-h1-warm text-ink">Resistance Tracker</h1>
-        <button
-          onClick={handleSignOut}
-          className="text-xs-warm text-ink-muted hover:text-ink transition"
-        >
-          Sign out
-        </button>
+  const logPage = (
+    <div className="flex flex-col lg:flex-row gap-6">
+      <div className="w-full lg:w-96 lg:sticky lg:top-24 lg:h-fit">
+        <ExerciseForm
+          onSubmit={handleAddExercise}
+          editingData={editingData}
+          onCancelEdit={handleCancelEdit}
+          copyData={copyData}
+          onCopyConsumed={() => setCopyData(null)}
+          exerciseLibrary={exerciseLibrary}
+        />
       </div>
-
-      {/* Mobile tab bar */}
-      <div className="lg:hidden sticky top-0 z-10 bg-cream border-b-[0.5px] border-taupe flex">
-        <button
-          onClick={() => setMobileTab('log')}
-          className={`flex-1 py-3 text-sm-warm font-medium transition ${
-            mobileTab === 'log'
-              ? 'text-ink border-b-2 border-lower-body'
-              : 'text-ink-muted hover:text-ink'
-          }`}
-        >
-          Log Exercise
-        </button>
-        <button
-          onClick={() => setMobileTab('history')}
-          className={`flex-1 py-3 text-sm-warm font-medium transition ${
-            mobileTab === 'history'
-              ? 'text-ink border-b-2 border-lower-body'
-              : 'text-ink-muted hover:text-ink'
-          }`}
-        >
-          History {exercises.length > 0 && <span className="ml-1 text-tiny text-ink-muted">({exercises.length})</span>}
-        </button>
-      </div>
-
-      <div className="flex flex-col lg:flex-row gap-6 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
-
-        <div className={`w-full lg:w-96 lg:sticky lg:top-8 lg:h-fit lg:block ${mobileTab === 'log' ? 'block' : 'hidden'}`}>
-          <ExerciseForm
-            onSubmit={(data) => { handleAddExercise(data); setMobileTab('history'); }}
-            editingData={editingData}
-            onCancelEdit={handleCancelEdit}
-            copyData={copyData}
-            onCopyConsumed={() => setCopyData(null)}
-            exerciseLibrary={exerciseLibrary}
-          />
-        </div>
-
-        <div className={`flex-1 min-w-0 lg:block ${mobileTab === 'history' ? 'block' : 'hidden'}`}>
-          {loading ? (
-            <div className="flex items-center justify-center py-16">
-              <p className="text-ink-muted">Loading exercises...</p>
+      <div className="flex-1 min-w-0">
+        {loading ? (
+          <p className="text-ink-muted">Loading exercises...</p>
+        ) : exercises.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+            <h3 className="text-h2-warm text-ink mb-2">No exercises logged yet</h3>
+            <p className="text-ink-muted text-xs-warm">Start by adding your first exercise using the form.</p>
+          </div>
+        ) : (
+          <div>
+            <div className="flex items-baseline justify-between mb-4">
+              <h2 className="text-h1-warm text-ink">Recent activity</h2>
+              <span className="text-tiny text-ink-muted">
+                {recentExercises.length} of {exercises.length}
+              </span>
             </div>
-          ) : (
             <ExerciseList
-              exercises={exercises}
+              exercises={recentExercises}
               exerciseLibrary={exerciseLibrary}
               onEdit={handleEditExercise}
               onDelete={handleDeleteExercise}
               onCopy={handleCopyExercise}
               editingId={editingId}
             />
-          )}
-        </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 
+  const historyPage = (
+    <div>
+      <div className="flex items-baseline justify-between mb-4">
+        <h1 className="text-h1-warm text-ink">History</h1>
+        <span className="text-tiny text-ink-muted">
+          {exercises.length} session{exercises.length !== 1 ? 's' : ''}
+        </span>
+      </div>
+      {loading ? (
+        <p className="text-ink-muted">Loading exercises...</p>
+      ) : (
+        <ExerciseList
+          exercises={exercises}
+          exerciseLibrary={exerciseLibrary}
+          onEdit={handleEditExercise}
+          onDelete={handleDeleteExercise}
+          onCopy={handleCopyExercise}
+          editingId={editingId}
+        />
+      )}
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-page">
+
+      {/* Top bar — title + desktop tabs + sign out */}
+      <div className="bg-cream border-b-[0.5px] border-taupe px-4 py-3 flex items-center justify-between gap-4">
+        <h1 className="text-h1-warm text-ink whitespace-nowrap">Resistance Tracker</h1>
+        <TabNavigation className="hidden lg:inline-flex" />
+        <button
+          onClick={handleSignOut}
+          className="text-xs-warm text-ink-muted hover:text-ink transition whitespace-nowrap"
+        >
+          Sign out
+        </button>
+      </div>
+
+      {/* Mobile tab bar — sticky below the header */}
+      <div className="lg:hidden sticky top-0 z-10 bg-cream border-b-[0.5px] border-taupe flex justify-center py-2">
+        <TabNavigation />
+      </div>
+
+      <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+        <Routes>
+          <Route path="/" element={logPage} />
+          <Route path="/analytics" element={<Analytics exercises={exercises} />} />
+          <Route path="/history" element={historyPage} />
+        </Routes>
       </div>
     </div>
   );

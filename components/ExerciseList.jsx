@@ -35,7 +35,6 @@ export default function ExerciseList({ exercises, exerciseLibrary = [], onEdit, 
 
   return (
     <div>
-      <h2 className="text-h1-warm text-ink mb-4">Exercise Log</h2>
       <div className="space-y-5">
         {groups.map(([date, group]) => (
           <div key={date} className="bg-cream rounded-card shadow-card border-[0.5px] border-taupe overflow-hidden">
