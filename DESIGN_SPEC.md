@@ -119,7 +119,7 @@ Success/complete:  #8FA968  (sage green — same as lower body accent)
 ### Three tabs (top-level navigation)
 
 1. **Log** — the active workout entry screen (left sidebar form + right recent activity)
-2. **Analytics** — all progress charts and coverage views
+2. **Progress** — per-exercise progression tracking and time-to-progress signal (renamed from v1's "Analytics" — see Screen 2 below for the narrower, higher-signal scope)
 3. **History** — full searchable history of logged exercises
 
 On mobile, tabs are sticky top. On desktop, they sit inline with the header.
@@ -165,48 +165,78 @@ Right column (flexible, recent activity):
 
 ---
 
-## Screen 2 — Analytics
+## Screen 2 — Progress
+
+**Rescoped April 19, 2026.** The v1 spec called this screen "Analytics" and proposed 4 KPIs + 6 charts (total volume, variety score, muscle group coverage, weight progression, push vs pull, compound vs isolation, PR timeline, training heatmap). After using the app for a couple of weeks, Lisa's actual question turned out to be much narrower:
+
+> "I honestly only want to know how I am tracking for each exercise in terms of progressive increase in weights and reps, and where I am improving and how long it took me to get to higher weight."
+
+Everything on this screen now serves that question. Metrics that looked "dashboardy" but were low-signal for a 55+ muscle-building goal are intentionally omitted — see the "Explicitly dropped" list at the end of this section for the rationale on each. The smart suggestion engine on the Log tab already handles muscle group coverage and push/pull balance at the moment of session planning (where those signals are actionable), so this screen stays focused on the progression signal itself.
 
 **Header:**
-- Title "Analytics" + subtitle showing period ("Last 8 weeks · 24 sessions logged")
+- Title "Progress" + subtitle showing period ("Last 8 weeks · N sessions logged")
 
-**Top row — KPI cards (4 across on desktop, 2x2 on mobile):**
-1. **Total volume** — sum of (sets × reps × weight) over last 8 weeks, with % change vs prior period
-2. **Sessions per week** — average, with "on target" status
-3. **Personal records** — count of new PRs in last 30 days
-4. **Variety score** — 0-100, measuring exercise diversity (detail below)
+### Top row — 3 KPI cards
 
-**Main content — grid of charts:**
+1. **Consistency streak** — e.g. "7 weeks of 2+ sessions." At 55+ this is the hidden lever; frequency matters more than programming nuance. Streak counts trailing weeks with ≥2 sessions; breaks on the first week below target.
+2. **This week's wins** — e.g. "3 exercises improved this week." Count of exercises whose best estimated-1RM (see below) this week exceeds their prior personal best for that exercise. Tap to expand the list.
+3. **Active progression set** — e.g. "12 exercises tracked." Count of exercises with ≥3 logged sessions (the minimum for meaningful progression tracking). Exercises below this threshold don't appear in progression views.
 
-### Chart 1: Weight progression
-- Line chart, one exercise at a time with dropdown selector
-- X-axis = weeks, Y-axis = weight
-- Sage green line, cream background card
-- Shows last 8-12 weeks by default
+### Primary view — Per-exercise progression chart
 
-### Chart 2: Muscle group coverage (THE KEY CHART)
-- Horizontal progress bars, one per primary muscle group
-- Each bar shows: muscle name (left), `X/2` (right showing "sessions this week / target")
-- Bar color = exercise type color if target met (2/2), soft coral `#D4A296` if below target (0/2 or 1/2)
-- Lisa's research-backed target: **2x per week per major muscle group** (Schoenfeld et al.)
-- This chart is where variety and completeness live together
+- Dropdown to pick an exercise (only lists exercises with ≥3 sessions)
+- Line chart: X-axis = session date, Y-axis = weight
+- Each data point = one logged session. Reps rendered as small labels next to the point, or encoded as marker size.
+- **Toggle: "Working weight" (default) vs "Estimated 1RM"**
+  - Estimated 1RM = Epley formula: `1RM ≈ weight × (1 + reps / 30)`
+  - Accurate within ~5% in the 6-15 rep range Lisa trains in
+  - This smooths the common pattern `3×10 @ 85lb → 3×8 @ 90lb`, which raw weight alone reads as ambiguous but is genuinely progress in 1RM terms
+- PRs (`is_max_weight` or `is_max_reps` rows) rendered as gold dots on the line — visual celebration
+- For bodyweight exercises (weight = null, e.g. Plank), the Y-axis flips to reps or seconds; the chart still works, just measures a different progression dimension
 
-### Chart 3: Push vs Pull balance
-- Simple horizontal stacked bar: Push count vs Pull count this week
-- Target: 1:1 ratio (Lisa's catalog now supports this well)
-- Warning if drifts to 2:1 or worse
+### Secondary view — Time-to-progress table
 
-### Chart 4: Compound vs Isolation ratio
-- Target: ~60% compound / 40% isolation for strength + body recomposition goals
-- Simple donut or horizontal bar
+One row per exercise with ≥3 sessions. Sortable.
 
-### Chart 5: PR timeline
-- Timeline chart showing each personal record as a dot
-- Hover shows exercise name + weight/reps achieved
+| Exercise | Current working set | Previous working set | Time to progress | Trend |
+|---|---|---|---|---|
+| Goblet Squat | 3×10 @ 95 lbs | 3×10 @ 85 lbs | 32 days · 6 sessions | ↑ |
+| Bench Press | 3×8 @ 85 lbs | 3×8 @ 80 lbs | 21 days · 5 sessions | ↑ |
+| Leg Curl | 3×12 @ 50 lbs | 3×12 @ 50 lbs | plateau 41 days | → |
 
-### Chart 6: Training frequency heatmap
-- Calendar heatmap showing training density per day over last 8-12 weeks
-- Helps Lisa spot patterns in consistency
+**Definitions:**
+- **Current working set** = most recent non-PR set for that exercise (the "what I'm doing now" combo).
+- **Previous working set** = the most recent distinct (weight × reps) combo logged *before* the current combo was first achieved.
+- **Time to progress** = calendar days + session count between the first time the previous combo was hit and the first time the current combo was hit.
+- **Trend** = ↑ if current combo has higher estimated-1RM than previous, → if equal, ↓ if lower (deload or regression — rare, visible when it matters).
+
+**Sort options:** recently progressed · longest plateau · by muscle group
+**Plateau flag:** if no progression detected in 28+ days, the row gets a soft coral left accent — noticeable but not alarming. Plateaus are normal; the flag just surfaces them.
+
+### Weekly pulse (footer card)
+
+Short rolled-up summary at the bottom of the screen:
+- "This week: 3 exercises improved" with inline list of names
+- "Week before: 2 exercises improved"
+- "Consistency: hit 3 sessions this week (target: 2+) ✓"
+
+One-glance emotional reinforcement. If nothing improved this week the card is honest about it ("no new progress this week — muscle adaptation isn't linear, keep going") rather than hiding or spinning. Truth > cheerleading.
+
+### Build order within Step 5 (ship in chunks)
+
+- **5a** — Primary view only: exercise dropdown + progression line chart + 1RM toggle. Ships 80% of the value. This alone probably answers Lisa's question most days.
+- **5b** — Time-to-progress table. Second most important view; adds the "how long did it take me" signal.
+- **5c** — 3 KPI cards + weekly pulse card. Motivational layer on top of the data views.
+
+### Explicitly dropped from v1 Analytics spec (and why)
+
+- ~~**Total volume (sets × reps × weight summed)**~~ — noisy; bodyweight exercises register as 0; volume can rise without real strength gain (more junk sets). Elite coaches have moved away from it as a primary metric.
+- ~~**Variety score**~~ — optimizes for "not being bored," not for progress. If Lisa is progressing on an exercise, variety is a distraction. Suggestion engine handles variety nudges at planning time where they matter.
+- ~~**Push vs Pull balance chart**~~ — injury-prevention metric, not a progress signal. Suggestion engine already enforces push/pull mix.
+- ~~**Compound vs Isolation ratio**~~ — programming-quality metric; low signal for "am I improving."
+- ~~**Training frequency heatmap**~~ — visual candy; "consistency streak" KPI conveys the same information in one line.
+- ~~**PR count over last 30 days**~~ — replaced by the more actionable "this week's wins," which uses the richer estimated-1RM signal and updates every session.
+- ~~**Muscle group coverage chart**~~ — was "THE key chart" in v1. Omitted here because the suggestion engine already surfaces under-trained muscles at the Log tab, where that info is immediately actionable. Could be reintroduced as a small secondary view if Lisa later wants a standalone visual, but it's not primary to "am I improving."
 
 ---
 
@@ -272,24 +302,6 @@ The banner shows:
 
 ---
 
-## Variety Score (for KPI card)
-
-**Definition:** 0-100 score measuring how diverse the training has been in the last 8 weeks.
-
-**Formula (simple version):**
-```
-unique_exercises_trained / total_exercises_trained × scale_factor
-```
-
-Where `scale_factor` rewards hitting 2+ sessions per muscle group while penalizing over-repetition of the same exercise.
-
-**Thresholds:**
-- 0-40: Low variety (repeating too much)
-- 40-70: Moderate
-- 70-100: Strong variety
-
----
-
 ## Peak 8 Handling
 
 - Tracked separately from resistance training muscle groups
@@ -322,7 +334,7 @@ Already has: id, user_id, name, type, date, sets, reps, weight, unit, is_max_wei
 2. ✅ **Exercise card redesign** — DONE (April 18, 2026, commit `1466144`). Compact row layout lives in `components/ExerciseCard.jsx`, which is now the single source of truth consumed by `ExerciseList`. 4px left color bar by type, primary-muscle pill in matching type-fill, muted sub-line `secondaries · date` joined from `exercise_library` via `name`. Unmatched names render neutral gray with no pill and no sub-line (graceful fallback for custom exercises). App.jsx loads the library once and passes it down; `ExerciseList` memoizes a `Map<name, libraryRow>` lookup. Form simplifications shipped in the same step: Quick-entry mode removed, Type field removed from Full form (auto-filled from library pick, with submit-time safety net to derive type from typed names that match the library), Focus field removed entirely. DB migration: existing rows' `type` synced from the library, orphan names renamed to canonical spellings, and `focus` column dropped.
 3. ✅ **Tab navigation** — DONE (April 18, 2026, commit `b2c9f7f`). React Router v7 with `HashRouter` (GitHub Pages-friendly — no `404.html` SPA fallback hack needed; URLs look like `#/analytics`). `components/TabNavigation.jsx` renders pill-style `NavLink` tabs (cream active with `shadow-tab`, beige container). Tabs sit inline with the top bar on desktop and sticky below it on mobile. Routes: `/` Log, `/analytics` Analytics, `/history` History. Log tab shows the form + "Recent activity" (top 5 of N, with `N of TOTAL` count badge). Analytics is a skeleton in `components/Analytics.jsx` with 4 KPI card stubs + chart placeholders awaiting step 5. History shows the full `ExerciseList`. Edit from any tab calls `useNavigate('/')` and populates the form.
 4. ✅ **Smart suggestion engine** — DONE (April 19, 2026, commit `452c6af`). Pure logic in `lib/suggestions.js` (reusable by step 5 analytics): `normalizePattern` maps 23 raw `movement_pattern` values to 8 canonical buckets (Squat, Hinge, Push horizontal/vertical, Pull horizontal/vertical, Core, Isolation); `computePatternCoverage`, `computeRecoveryState`, `computeMuscleFrequency` are trailing-7-day tallies; `buildSession` produces a session, `attachLastUsed` enriches each pick with most-recent logged stats. Enforces Rules 1-5 from the spec: 48h recovery block / 48-72h deprioritize / 72h+ fresh (Core & Peak 8 exempt from recovery; Peak 8 excluded from suggestions entirely). Slot structure is a hard ratio by TYPE (not a soft bonus): `1 core + ceil((count-1)/2) lower + floor((count-1)/2) upper` — at default count=6 that's 3 lower / 2 upper / 1 core. First lower slot requires Lower Body type AND Squat/Hinge pattern so upper-body Hinge variants (e.g. Hyper Extensions) can't steal it. Fallback fill keeps session length at `count` if recovery blocks specific slots. `components/SuggestedSession.jsx` renders above "Recent activity" with a 4-7 slider, per-row rationale ("Chest under target (1/2)", "Core (safe daily)", etc.), last-used stats ("Last time: 3×10 @ 85 lbs · Apr 15") or "— new exercise —", and a copy icon that pre-fills the form via the existing `onCopy` flow. Palette tweak shipped in the same commit: `ink` text shifted from `#2C2820` (near-black) to `#4A3F32` (warm brown) app-wide; contrast on cream still ~9:1.
-5. **Analytics screen** — KPI cards + muscle group coverage chart first, other charts second
+5. **Progress screen** (rescoped April 19, 2026 — see "Screen 2 — Progress" above). Ship in 3 chunks: 5a = per-exercise progression chart + exercise dropdown + estimated-1RM toggle (80% of the value), 5b = time-to-progress table, 5c = 3 KPIs + weekly pulse card. Tab label changes from "Analytics" to "Progress" in `TabNavigation.jsx`. Route stays `/analytics` for URL continuity, or renames to `/progress` — decide at 5a.
 6. **History screen enhancements** — filtering by muscle group (new capability unlocked by metadata)
 7. **Polish** — transitions, empty states, loading states, mobile responsiveness
 
@@ -331,7 +343,7 @@ Already has: id, user_id, name, type, date, sets, reps, weight, unit, is_max_wei
 ## Open decisions to revisit in new chat
 
 1. **Peak 8 catalog** — currently empty. Add "Peak 8 Sprints" and any variants when Lisa confirms her typical Peak 8 protocol.
-2. **Chart library** — stick with inline SVG (simple) or add Recharts (richer)? Recommend inline SVG for KPI sparklines and lightweight charts, Recharts for the Analytics screen.
+2. **Chart library** — RESOLVED (April 19, 2026): stick with inline SVG. The rescoped Progress screen has only one real chart (per-exercise progression line), so Recharts' ~100KB gzipped dep isn't worth it. Hand-rolled SVG keeps bundle size low and gives full control over the warm palette.
 3. **Focus field** — currently a free-text field ("Push", "Pull"). Could be promoted to a proper enum if Lisa wants it as a filter dimension.
 4. **Dark mode** — not in scope for v2 per the warm beige aesthetic, but could be added later.
 
