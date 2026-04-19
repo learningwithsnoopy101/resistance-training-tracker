@@ -8,8 +8,6 @@ import ExerciseList from '@/components/ExerciseList';
 import TabNavigation from '@/components/TabNavigation';
 import Analytics from '@/components/Analytics';
 
-const RECENT_LIMIT = 5;
-
 export default function App() {
   const [session, setSession] = useState(null);
   const [sessionLoading, setSessionLoading] = useState(true);
@@ -149,7 +147,8 @@ export default function App() {
 
   if (!session) return <Auth />;
 
-  const recentExercises = exercises.slice(0, RECENT_LIMIT);
+  const latestDate = exercises[0]?.date;
+  const recentExercises = latestDate ? exercises.filter(ex => ex.date === latestDate) : [];
 
   const logPage = (
     <div className="flex flex-col lg:flex-row gap-6">
@@ -173,12 +172,7 @@ export default function App() {
           </div>
         ) : (
           <div>
-            <div className="flex items-baseline justify-between mb-4">
-              <h2 className="text-h1-warm text-ink">Recent activity</h2>
-              <span className="text-tiny text-ink-muted">
-                {recentExercises.length} of {exercises.length}
-              </span>
-            </div>
+            <h2 className="text-h1-warm text-ink mb-4">Recent activity</h2>
             <ExerciseList
               exercises={recentExercises}
               exerciseLibrary={exerciseLibrary}
