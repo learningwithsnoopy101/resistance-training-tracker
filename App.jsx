@@ -39,7 +39,7 @@ export default function App() {
   const fetchExerciseLibrary = async () => {
     const { data } = await supabase
       .from('exercise_library')
-      .select('name, type')
+      .select('name, type, primary_muscle, secondary_muscles')
       .order('type')
       .order('name');
     if (data) setExerciseLibrary(data);
@@ -68,7 +68,6 @@ export default function App() {
     unit: row.unit || 'lbs',
     isMaxWeight: row.is_max_weight,
     isMaxReps: row.is_max_reps,
-    focus: row.focus || '',
     notes: row.notes || '',
   });
 
@@ -84,7 +83,6 @@ export default function App() {
     unit: ex.unit,
     is_max_weight: ex.isMaxWeight,
     is_max_reps: ex.isMaxReps,
-    focus: ex.focus || null,
     notes: ex.notes || null,
   });
 
@@ -204,6 +202,7 @@ export default function App() {
           ) : (
             <ExerciseList
               exercises={exercises}
+              exerciseLibrary={exerciseLibrary}
               onEdit={handleEditExercise}
               onDelete={handleDeleteExercise}
               onCopy={handleCopyExercise}

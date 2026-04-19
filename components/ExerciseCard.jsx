@@ -1,102 +1,116 @@
 import React from 'react';
 
-// Exercise-type style map — uses warm-palette tokens from tailwind.config.js
+// Exercise-type styles: left-border bar + badge pill. Uses warm-palette tokens.
 const TYPE_STYLES = {
-  'Upper Body': 'bg-upper-body-fill text-upper-body-ink',
-  'Lower Body': 'bg-lower-body-fill text-lower-body-ink',
-  'Abs':        'bg-abs-core-fill text-abs-core-ink',
-  'Peak 8':     'bg-peak-8-fill text-peak-8-ink',
+  'Upper Body': { bar: 'bg-upper-body', badge: 'bg-upper-body-fill text-upper-body-ink' },
+  'Lower Body': { bar: 'bg-lower-body', badge: 'bg-lower-body-fill text-lower-body-ink' },
+  'Abs':        { bar: 'bg-abs-core',   badge: 'bg-abs-core-fill text-abs-core-ink' },
+  'Peak 8':     { bar: 'bg-peak-8',     badge: 'bg-peak-8-fill text-peak-8-ink' },
 };
 
-export default function ExerciseCard({ exercise, onEdit, onDelete, isEditing }) {
-  const formatDate = (dateString) => {
-    const date = new Date(dateString + 'T00:00:00');
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  };
+const DEFAULT_STYLE = { bar: 'bg-taupe', badge: 'bg-beige text-ink-muted' };
 
-  const typeStyle = TYPE_STYLES[exercise.type] || 'bg-beige text-ink-muted';
+function formatShortDate(dateString) {
+  const date = new Date(dateString + 'T00:00:00');
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+export default function ExerciseCard({ exercise, libraryEntry, onEdit, onDelete, onCopy, isEditing }) {
+  const style = TYPE_STYLES[exercise.type] || DEFAULT_STYLE;
+  const primaryMuscle = libraryEntry?.primary_muscle;
+  const secondaryMuscles = libraryEntry?.secondary_muscles || [];
+  const hasLibraryMatch = Boolean(primaryMuscle);
 
   return (
-    <div
-      className={`bg-cream rounded-card shadow-card border-[0.5px] border-taupe p-6 transition-all ${
-        isEditing ? 'ring-2 ring-lower-body' : ''
-      }`}
-    >
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
-        <div className="flex-1 min-w-0">
-          <h3 className="text-h2-warm text-ink break-words">{exercise.name}</h3>
-          <div className="flex flex-wrap gap-2 mt-3">
-            <span className={`inline-block px-3 py-1 rounded-full text-xs-warm font-medium ${typeStyle}`}>
-              {exercise.type}
+    <div className={`flex gap-2 px-3 py-2.5 rounded-input transition-colors ${
+      isEditing ? 'bg-beige ring-1 ring-lower-body' : 'hover:bg-beige'
+    }`}>
+      {/* 4px type color bar */}
+      <div className={`w-1 self-stretch rounded-full flex-shrink-0 ${style.bar}`} />
+
+      {/* Content */}
+      <div className="flex-1 min-w-0">
+        {/* Top row: name + type pill + primary-muscle pill */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="font-medium text-ink text-sm-warm">{exercise.name}</span>
+          <span className={`text-tiny px-2 py-0.5 rounded-full font-medium ${style.badge}`}>
+            {exercise.type}
+          </span>
+          {primaryMuscle && (
+            <span className={`text-tiny px-2 py-0.5 rounded-full font-medium ${style.badge}`}>
+              {primaryMuscle}
             </span>
-            <span className="inline-block px-3 py-1 rounded-full text-xs-warm font-medium bg-beige text-ink-muted">
-              {formatDate(exercise.date)}
-            </span>
-          </div>
+          )}
         </div>
 
-        <div className="flex gap-2 flex-shrink-0">
-          <button
-            onClick={() => onEdit(exercise)}
-            className="px-4 py-2 bg-beige hover:bg-taupe text-ink font-medium rounded-input transition focus:outline-none focus:ring-2 focus:ring-lower-body"
-          >
-            Edit
-          </button>
-          <button
-            onClick={() => {
-              if (window.confirm(`Delete ${exercise.name}?`)) {
-                onDelete(exercise.id);
-              }
-            }}
-            className="px-4 py-2 bg-warn-fill hover:opacity-80 text-warn-ink font-medium rounded-input transition focus:outline-none focus:ring-2 focus:ring-warn-fill"
-          >
-            Delete
-          </button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4 pb-4 border-b-[0.5px] border-taupe">
-        <div>
-          <p className="text-micro font-medium text-ink-muted uppercase tracking-micro">Sets</p>
-          <p className="text-h1-warm text-ink mt-1">{exercise.sets}</p>
-        </div>
-        <div>
-          <p className="text-micro font-medium text-ink-muted uppercase tracking-micro">Reps</p>
-          <p className="text-h1-warm text-ink mt-1">{exercise.reps}</p>
-        </div>
-        {exercise.weight && (
-          <div>
-            <p className="text-micro font-medium text-ink-muted uppercase tracking-micro">Weight</p>
-            <p className="text-h1-warm text-ink mt-1">
-              {exercise.weight} <span className="text-xs-warm text-ink-muted">{exercise.unit}</span>
-            </p>
+        {/* Sub-line: secondary muscles · date (only if library match) */}
+        {hasLibraryMatch && (
+          <div className="text-tiny text-ink-muted mt-0.5">
+            {secondaryMuscles.length > 0 && (
+              <>
+                <span>{secondaryMuscles.join(', ')}</span>
+                <span className="mx-1.5">·</span>
+              </>
+            )}
+            <span>{formatShortDate(exercise.date)}</span>
           </div>
         )}
-        {(exercise.isMaxWeight || exercise.isMaxReps) && (
-          <div>
-            <p className="text-micro font-medium text-ink-muted uppercase tracking-micro">Achievements</p>
-            <div className="flex flex-wrap gap-1 mt-1">
-              {exercise.isMaxWeight && (
-                <span className="inline-block px-2 py-1 bg-pr-fill text-pr-ink text-tiny font-medium rounded-input">
-                  Max W
-                </span>
-              )}
-              {exercise.isMaxReps && (
-                <span className="inline-block px-2 py-1 bg-pr-fill text-pr-ink text-tiny font-medium rounded-input">
-                  Max R
-                </span>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
 
-      {exercise.notes && (
-        <div>
-          <p className="text-micro font-medium text-ink-muted uppercase tracking-micro mb-2">Notes</p>
-          <p className="text-ink text-sm-warm leading-relaxed">{exercise.notes}</p>
+        {/* Stats + actions row */}
+        <div className="flex items-center gap-3 mt-1 flex-wrap">
+          <span className="font-mono font-medium text-ink text-sm-warm">
+            {exercise.sets}×{exercise.reps}
+          </span>
+          {exercise.weight && (
+            <span className="text-tiny text-ink-muted">{exercise.weight} {exercise.unit}</span>
+          )}
+          {exercise.isMaxWeight && (
+            <span className="text-tiny bg-pr-fill text-pr-ink px-1.5 py-0.5 rounded-input font-medium">Max W</span>
+          )}
+          {exercise.isMaxReps && (
+            <span className="text-tiny bg-pr-fill text-pr-ink px-1.5 py-0.5 rounded-input font-medium">Max R</span>
+          )}
+          {exercise.notes && (
+            <span className="text-tiny text-ink-muted italic truncate">{exercise.notes}</span>
+          )}
+
+          {/* Actions inline with stats */}
+          <div className="flex items-center gap-1 ml-auto flex-shrink-0">
+            <button
+              onClick={() => onCopy(exercise)}
+              title="Copy to entry"
+              className="p-1.5 text-lower-body-ink hover:bg-lower-body-fill rounded-input transition focus:outline-none focus:ring-2 focus:ring-lower-body"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+              </svg>
+            </button>
+            <button
+              onClick={() => onEdit(exercise)}
+              title="Edit"
+              className="p-1.5 text-upper-body-ink hover:bg-upper-body-fill rounded-input transition focus:outline-none focus:ring-2 focus:ring-upper-body"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
+            </button>
+            <button
+              onClick={() => { if (window.confirm(`Delete ${exercise.name}?`)) onDelete(exercise.id); }}
+              title="Delete"
+              className="p-1.5 text-warn-ink hover:bg-warn-fill rounded-input transition focus:outline-none focus:ring-2 focus:ring-warn-fill"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                <path d="M10 11v6M14 11v6"/>
+                <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+              </svg>
+            </button>
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
