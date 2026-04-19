@@ -137,8 +137,8 @@ export default function App() {
 
   if (sessionLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-500">Loading...</p>
+      <div className="min-h-screen bg-page flex items-center justify-center">
+        <p className="text-ink-muted">Loading...</p>
       </div>
     );
   }
@@ -146,36 +146,40 @@ export default function App() {
   if (!session) return <Auth />;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-page">
 
       {/* Top bar */}
-      <div className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
-        <h1 className="text-base font-bold text-gray-900">Resistance Tracker</h1>
+      <div className="bg-cream border-b-[0.5px] border-taupe px-4 py-3 flex items-center justify-between">
+        <h1 className="text-h1-warm text-ink">Resistance Tracker</h1>
         <button
           onClick={handleSignOut}
-          className="text-sm text-gray-500 hover:text-gray-700 transition"
+          className="text-xs-warm text-ink-muted hover:text-ink transition"
         >
           Sign out
         </button>
       </div>
 
       {/* Mobile tab bar */}
-      <div className="lg:hidden sticky top-0 z-10 bg-white border-b border-gray-200 flex">
+      <div className="lg:hidden sticky top-0 z-10 bg-cream border-b-[0.5px] border-taupe flex">
         <button
           onClick={() => setMobileTab('log')}
-          className={`flex-1 py-3 text-sm font-semibold transition ${
-            mobileTab === 'log' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'
+          className={`flex-1 py-3 text-sm-warm font-medium transition ${
+            mobileTab === 'log'
+              ? 'text-ink border-b-2 border-lower-body'
+              : 'text-ink-muted hover:text-ink'
           }`}
         >
           Log Exercise
         </button>
         <button
           onClick={() => setMobileTab('history')}
-          className={`flex-1 py-3 text-sm font-semibold transition ${
-            mobileTab === 'history' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'
+          className={`flex-1 py-3 text-sm-warm font-medium transition ${
+            mobileTab === 'history'
+              ? 'text-ink border-b-2 border-lower-body'
+              : 'text-ink-muted hover:text-ink'
           }`}
         >
-          History {exercises.length > 0 && <span className="ml-1 text-xs text-gray-400">({exercises.length})</span>}
+          History {exercises.length > 0 && <span className="ml-1 text-tiny text-ink-muted">({exercises.length})</span>}
         </button>
       </div>
 
@@ -195,7 +199,7 @@ export default function App() {
         <div className={`flex-1 min-w-0 lg:block ${mobileTab === 'history' ? 'block' : 'hidden'}`}>
           {loading ? (
             <div className="flex items-center justify-center py-16">
-              <p className="text-gray-400">Loading exercises...</p>
+              <p className="text-ink-muted">Loading exercises...</p>
             </div>
           ) : (
             <ExerciseList

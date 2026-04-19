@@ -99,23 +99,23 @@ export default function BulkImport({ onImport }) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg transition focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+        className="w-full bg-beige hover:bg-taupe text-ink font-medium py-2 px-4 rounded-input transition focus:outline-none focus:ring-2 focus:ring-lower-body"
       >
-        Bulk Import from Notepad
+        Bulk import from notepad
       </button>
 
       {open && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-ink/40 flex items-center justify-center z-50 p-4">
+          <div className="bg-cream rounded-card shadow-card border-[0.5px] border-taupe w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-gray-900">Bulk Import Exercises</h2>
-                <button onClick={handleClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+                <h2 className="text-h1-warm text-ink">Bulk import exercises</h2>
+                <button onClick={handleClose} className="text-ink-muted hover:text-ink text-2xl leading-none">&times;</button>
               </div>
 
-              <p className="text-sm text-gray-600 mb-3">
+              <p className="text-xs-warm text-ink-muted mb-3">
                 Paste your notepad data below. Expected format per line:<br />
-                <code className="bg-gray-100 px-1 rounded text-xs">Type, Exercise Name, Date, SetsxReps, Weight, Max flag</code>
+                <code className="bg-beige px-1 rounded-input text-tiny">Type, Exercise Name, Date, SetsxReps, Weight, Max flag</code>
               </p>
 
               <textarea
@@ -123,30 +123,30 @@ export default function BulkImport({ onImport }) {
                 onChange={e => { setText(e.target.value); setParsed(null); setError(''); }}
                 rows={6}
                 placeholder={"Lower Body, Dumbbell Lunges, 4/10, 3x10, 40lbs, max weight"}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                className="w-full px-3 py-2 bg-cream border-[0.5px] border-taupe rounded-input font-mono text-sm-warm text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-lower-body focus:border-lower-body resize-none"
               />
 
               <button
                 onClick={handleParse}
                 disabled={!text.trim()}
-                className="mt-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium py-2 px-4 rounded-lg transition focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="mt-3 bg-ink hover:opacity-90 disabled:opacity-50 text-cream font-medium py-2 px-4 rounded-input transition focus:outline-none focus:ring-2 focus:ring-lower-body"
               >
                 Parse
               </button>
 
-              {error && <p className="mt-3 text-sm text-amber-600">{error}</p>}
+              {error && <p className="mt-3 text-xs-warm text-warn-ink">{error}</p>}
 
               {parsed && (
                 <div className="mt-5">
-                  <p className="text-sm font-medium text-gray-700 mb-3">
+                  <p className="text-xs-warm font-medium text-ink mb-3">
                     {parsed.length} exercise{parsed.length !== 1 ? 's' : ''} found — assign a type to each:
                   </p>
                   <div className="space-y-2">
                     {parsed.map((ex, idx) => (
-                      <div key={idx} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                      <div key={idx} className="flex items-center gap-3 p-3 bg-beige rounded-input">
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium text-gray-900 text-sm truncate">{ex.name}</p>
-                          <p className="text-xs text-gray-500">
+                          <p className="font-medium text-ink text-xs-warm truncate">{ex.name}</p>
+                          <p className="text-tiny text-ink-muted">
                             {ex.type} &middot; {ex.date} &middot; {ex.sets}x{ex.reps}
                             {ex.weight ? ` · ${ex.weight}${ex.unit}` : ''}
                             {ex.isMaxWeight ? ' · Max W' : ''}
@@ -160,13 +160,13 @@ export default function BulkImport({ onImport }) {
                   <div className="flex gap-3 mt-5">
                     <button
                       onClick={handleImport}
-                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="flex-1 bg-ink hover:opacity-90 text-cream font-medium py-2 px-4 rounded-input transition focus:outline-none focus:ring-2 focus:ring-lower-body"
                     >
-                      Import {parsed.length} Exercise{parsed.length !== 1 ? 's' : ''}
+                      Import {parsed.length} exercise{parsed.length !== 1 ? 's' : ''}
                     </button>
                     <button
                       onClick={handleClose}
-                      className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-900 font-medium py-2 px-4 rounded-lg transition"
+                      className="flex-1 bg-beige hover:bg-taupe text-ink font-medium py-2 px-4 rounded-input transition"
                     >
                       Cancel
                     </button>

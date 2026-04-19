@@ -1,10 +1,11 @@
 import React from 'react';
 
-const TYPE_COLORS = {
-  'Upper Body': 'bg-blue-100 text-blue-800',
-  'Lower Body': 'bg-green-100 text-green-800',
-  'Abs': 'bg-purple-100 text-purple-800',
-  'Peak 8': 'bg-orange-100 text-orange-800',
+// Exercise-type style map — uses warm-palette tokens from tailwind.config.js
+const TYPE_STYLES = {
+  'Upper Body': 'bg-upper-body-fill text-upper-body-ink',
+  'Lower Body': 'bg-lower-body-fill text-lower-body-ink',
+  'Abs':        'bg-abs-core-fill text-abs-core-ink',
+  'Peak 8':     'bg-peak-8-fill text-peak-8-ink',
 };
 
 export default function ExerciseCard({ exercise, onEdit, onDelete, isEditing }) {
@@ -13,22 +14,22 @@ export default function ExerciseCard({ exercise, onEdit, onDelete, isEditing }) 
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
-  const typeColor = TYPE_COLORS[exercise.type] || 'bg-gray-100 text-gray-800';
+  const typeStyle = TYPE_STYLES[exercise.type] || 'bg-beige text-ink-muted';
 
   return (
     <div
-      className={`bg-white rounded-lg shadow-md p-6 transition-all ${
-        isEditing ? 'ring-2 ring-blue-500 shadow-lg' : 'hover:shadow-lg'
+      className={`bg-cream rounded-card shadow-card border-[0.5px] border-taupe p-6 transition-all ${
+        isEditing ? 'ring-2 ring-lower-body' : ''
       }`}
     >
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
         <div className="flex-1 min-w-0">
-          <h3 className="text-lg font-bold text-gray-900 break-words">{exercise.name}</h3>
+          <h3 className="text-h2-warm text-ink break-words">{exercise.name}</h3>
           <div className="flex flex-wrap gap-2 mt-3">
-            <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${typeColor}`}>
+            <span className={`inline-block px-3 py-1 rounded-full text-xs-warm font-medium ${typeStyle}`}>
               {exercise.type}
             </span>
-            <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+            <span className="inline-block px-3 py-1 rounded-full text-xs-warm font-medium bg-beige text-ink-muted">
               {formatDate(exercise.date)}
             </span>
           </div>
@@ -37,7 +38,7 @@ export default function ExerciseCard({ exercise, onEdit, onDelete, isEditing }) 
         <div className="flex gap-2 flex-shrink-0">
           <button
             onClick={() => onEdit(exercise)}
-            className="px-4 py-2 bg-blue-50 hover:bg-blue-100 active:bg-blue-200 text-blue-700 font-medium rounded-lg transition focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="px-4 py-2 bg-beige hover:bg-taupe text-ink font-medium rounded-input transition focus:outline-none focus:ring-2 focus:ring-lower-body"
           >
             Edit
           </button>
@@ -47,41 +48,41 @@ export default function ExerciseCard({ exercise, onEdit, onDelete, isEditing }) 
                 onDelete(exercise.id);
               }
             }}
-            className="px-4 py-2 bg-red-50 hover:bg-red-100 active:bg-red-200 text-red-700 font-medium rounded-lg transition focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+            className="px-4 py-2 bg-warn-fill hover:opacity-80 text-warn-ink font-medium rounded-input transition focus:outline-none focus:ring-2 focus:ring-warn-fill"
           >
             Delete
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4 pb-4 border-b border-gray-200">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4 pb-4 border-b-[0.5px] border-taupe">
         <div>
-          <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Sets</p>
-          <p className="text-2xl font-bold text-gray-900 mt-1">{exercise.sets}</p>
+          <p className="text-micro font-medium text-ink-muted uppercase tracking-micro">Sets</p>
+          <p className="text-h1-warm text-ink mt-1">{exercise.sets}</p>
         </div>
         <div>
-          <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Reps</p>
-          <p className="text-2xl font-bold text-gray-900 mt-1">{exercise.reps}</p>
+          <p className="text-micro font-medium text-ink-muted uppercase tracking-micro">Reps</p>
+          <p className="text-h1-warm text-ink mt-1">{exercise.reps}</p>
         </div>
         {exercise.weight && (
           <div>
-            <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Weight</p>
-            <p className="text-2xl font-bold text-gray-900 mt-1">
-              {exercise.weight} <span className="text-sm text-gray-600">{exercise.unit}</span>
+            <p className="text-micro font-medium text-ink-muted uppercase tracking-micro">Weight</p>
+            <p className="text-h1-warm text-ink mt-1">
+              {exercise.weight} <span className="text-xs-warm text-ink-muted">{exercise.unit}</span>
             </p>
           </div>
         )}
         {(exercise.isMaxWeight || exercise.isMaxReps) && (
           <div>
-            <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Achievements</p>
+            <p className="text-micro font-medium text-ink-muted uppercase tracking-micro">Achievements</p>
             <div className="flex flex-wrap gap-1 mt-1">
               {exercise.isMaxWeight && (
-                <span className="inline-block px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded">
+                <span className="inline-block px-2 py-1 bg-pr-fill text-pr-ink text-tiny font-medium rounded-input">
                   Max W
                 </span>
               )}
               {exercise.isMaxReps && (
-                <span className="inline-block px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded">
+                <span className="inline-block px-2 py-1 bg-pr-fill text-pr-ink text-tiny font-medium rounded-input">
                   Max R
                 </span>
               )}
@@ -92,8 +93,8 @@ export default function ExerciseCard({ exercise, onEdit, onDelete, isEditing }) 
 
       {exercise.notes && (
         <div>
-          <p className="text-xs font-medium text-gray-600 uppercase tracking-wide mb-2">Notes</p>
-          <p className="text-gray-700 text-sm leading-relaxed">{exercise.notes}</p>
+          <p className="text-micro font-medium text-ink-muted uppercase tracking-micro mb-2">Notes</p>
+          <p className="text-ink text-sm-warm leading-relaxed">{exercise.notes}</p>
         </div>
       )}
     </div>

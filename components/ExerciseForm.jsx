@@ -57,6 +57,10 @@ function parseQuickEntry(text) {
   };
 }
 
+// Shared input class — reused across all text/number/date inputs
+const inputBase = 'w-full px-3 py-2 bg-cream border-[0.5px] border-taupe rounded-input text-sm-warm text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-lower-body focus:border-lower-body transition';
+const inputError = 'border-warn-fill';
+
 export default function ExerciseForm({ onSubmit, editingData, onCancelEdit, copyData, onCopyConsumed, exerciseLibrary = [] }) {
   const [mode, setMode] = useState('quick'); // 'quick' | 'full'
   const [formData, setFormData] = useState(EMPTY_FORM);
@@ -157,19 +161,19 @@ export default function ExerciseForm({ onSubmit, editingData, onCancelEdit, copy
   const isEditing = !!editingData;
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
+    <div className="bg-cream rounded-card shadow-card border-[0.5px] border-taupe p-6">
       {/* Header + toggle */}
       <div className="flex items-center justify-between mb-5">
-        <h2 className="text-xl font-bold text-gray-900">
-          {isEditing ? 'Edit Exercise' : 'Log Exercise'}
+        <h2 className="text-h1-warm text-ink">
+          {isEditing ? 'Edit exercise' : 'Log exercise'}
         </h2>
         {!isEditing && (
-          <div className="flex rounded-lg border border-gray-200 overflow-hidden text-sm">
+          <div className="flex rounded-input border-[0.5px] border-taupe overflow-hidden text-sm-warm">
             <button
               type="button"
               onClick={() => setMode('quick')}
               className={`px-3 py-1.5 font-medium transition ${
-                mode === 'quick' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-50'
+                mode === 'quick' ? 'bg-ink text-cream' : 'text-ink-muted hover:bg-beige'
               }`}
             >
               Quick
@@ -178,10 +182,10 @@ export default function ExerciseForm({ onSubmit, editingData, onCancelEdit, copy
               type="button"
               onClick={() => setMode('full')}
               className={`px-3 py-1.5 font-medium transition ${
-                mode === 'full' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-50'
+                mode === 'full' ? 'bg-ink text-cream' : 'text-ink-muted hover:bg-beige'
               }`}
             >
-              Full Form
+              Full form
             </button>
           </div>
         )}
@@ -191,14 +195,14 @@ export default function ExerciseForm({ onSubmit, editingData, onCancelEdit, copy
       {mode === 'quick' && !isEditing && (
         <form onSubmit={handleQuickSubmit} className="space-y-3">
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Pick an exercise (optional)</label>
+            <label className="block text-tiny font-medium text-ink-muted mb-1">Pick an exercise (optional)</label>
             <select
               onChange={e => {
                 const ex = exerciseLibrary.find(x => x.name === e.target.value);
                 if (ex) setQuickText(`${ex.type}, ${ex.name}, `);
                 e.target.value = '';
               }}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={inputBase}
               defaultValue=""
             >
               <option value="" disabled>Select exercise to pre-fill...</option>
@@ -211,7 +215,7 @@ export default function ExerciseForm({ onSubmit, editingData, onCancelEdit, copy
               ))}
             </select>
           </div>
-          <p className="text-xs text-gray-500">
+          <p className="text-tiny text-ink-muted">
             Format: <span className="font-mono">Type, Name, SetsxReps, Weight, Focus, Max flag</span>
           </p>
           <textarea
@@ -219,26 +223,24 @@ export default function ExerciseForm({ onSubmit, editingData, onCancelEdit, copy
             onChange={e => { setQuickText(e.target.value); setQuickError(''); }}
             placeholder="Lower Body, Squats, 3x10, 135lbs, Push, max weight"
             rows={3}
-            className={`w-full px-3 py-2 border rounded-lg font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition resize-none ${
-              quickError ? 'border-red-400' : 'border-gray-300'
-            }`}
+            className={`${inputBase} font-mono resize-none ${quickError ? inputError : ''}`}
           />
-          {quickError && <p className="text-red-500 text-xs">{quickError}</p>}
+          {quickError && <p className="text-warn-ink text-tiny">{quickError}</p>}
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Date (defaults to today)</label>
+            <label className="block text-tiny font-medium text-ink-muted mb-1">Date (defaults to today)</label>
             <input
               type="date"
               value={quickDate}
               onChange={e => setQuickDate(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+              className={inputBase}
             />
           </div>
           <button
             type="submit"
             disabled={!quickText.trim()}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium py-2 px-4 rounded-lg transition focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full bg-ink hover:opacity-90 disabled:opacity-50 text-cream font-medium py-2 px-4 rounded-input transition focus:outline-none focus:ring-2 focus:ring-lower-body"
           >
-            Log Exercise
+            Log exercise
           </button>
         </form>
       )}
@@ -247,14 +249,14 @@ export default function ExerciseForm({ onSubmit, editingData, onCancelEdit, copy
       {(mode === 'full' || isEditing) && (
         <form onSubmit={handleFullSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Pick an exercise (optional)</label>
+            <label className="block text-xs-warm font-medium text-ink mb-1">Pick an exercise (optional)</label>
             <select
               onChange={e => {
                 const ex = exerciseLibrary.find(x => x.name === e.target.value);
                 if (ex) setFormData(prev => ({ ...prev, name: ex.name, type: ex.type }));
                 e.target.value = '';
               }}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={inputBase}
               defaultValue=""
             >
               <option value="" disabled>Select exercise to pre-fill...</option>
@@ -268,135 +270,135 @@ export default function ExerciseForm({ onSubmit, editingData, onCancelEdit, copy
             </select>
           </div>
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-              Exercise Name <span className="text-red-500">*</span>
+            <label htmlFor="name" className="block text-xs-warm font-medium text-ink mb-1">
+              Exercise name <span className="text-warn-ink">*</span>
             </label>
             <input
               id="name" type="text" name="name" value={formData.name}
               onChange={handleChange} placeholder="e.g., Bench Press"
-              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition ${errors.name ? 'border-red-500' : 'border-gray-300'}`}
+              className={`${inputBase} ${errors.name ? inputError : ''}`}
             />
-            {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+            {errors.name && <p className="text-warn-ink text-xs-warm mt-1">{errors.name}</p>}
           </div>
 
           <div>
-            <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-1">
-              Type <span className="text-red-500">*</span>
+            <label htmlFor="type" className="block text-xs-warm font-medium text-ink mb-1">
+              Type <span className="text-warn-ink">*</span>
             </label>
             <select
               id="type" name="type" value={formData.type} onChange={handleChange}
-              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition ${errors.type ? 'border-red-500' : 'border-gray-300'}`}
+              className={`${inputBase} ${errors.type ? inputError : ''}`}
             >
               <option value="">Select a type</option>
               {EXERCISE_TYPES.map(type => <option key={type} value={type}>{type}</option>)}
             </select>
-            {errors.type && <p className="text-red-500 text-sm mt-1">{errors.type}</p>}
+            {errors.type && <p className="text-warn-ink text-xs-warm mt-1">{errors.type}</p>}
           </div>
 
           <div>
-            <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">
-              Date <span className="text-red-500">*</span>
+            <label htmlFor="date" className="block text-xs-warm font-medium text-ink mb-1">
+              Date <span className="text-warn-ink">*</span>
             </label>
             <input
               id="date" type="date" name="date" value={formData.date} onChange={handleChange}
-              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition ${errors.date ? 'border-red-500' : 'border-gray-300'}`}
+              className={`${inputBase} ${errors.date ? inputError : ''}`}
             />
-            {errors.date && <p className="text-red-500 text-sm mt-1">{errors.date}</p>}
+            {errors.date && <p className="text-warn-ink text-xs-warm mt-1">{errors.date}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="sets" className="block text-sm font-medium text-gray-700 mb-1">
-                Sets <span className="text-red-500">*</span>
+              <label htmlFor="sets" className="block text-xs-warm font-medium text-ink mb-1">
+                Sets <span className="text-warn-ink">*</span>
               </label>
               <input
                 id="sets" type="number" name="sets" value={formData.sets}
                 onChange={handleChange} min="1"
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition ${errors.sets ? 'border-red-500' : 'border-gray-300'}`}
+                className={`${inputBase} ${errors.sets ? inputError : ''}`}
               />
-              {errors.sets && <p className="text-red-500 text-sm mt-1">{errors.sets}</p>}
+              {errors.sets && <p className="text-warn-ink text-xs-warm mt-1">{errors.sets}</p>}
             </div>
             <div>
-              <label htmlFor="reps" className="block text-sm font-medium text-gray-700 mb-1">
-                Reps <span className="text-red-500">*</span>
+              <label htmlFor="reps" className="block text-xs-warm font-medium text-ink mb-1">
+                Reps <span className="text-warn-ink">*</span>
               </label>
               <input
                 id="reps" type="number" name="reps" value={formData.reps}
                 onChange={handleChange} min="1"
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition ${errors.reps ? 'border-red-500' : 'border-gray-300'}`}
+                className={`${inputBase} ${errors.reps ? inputError : ''}`}
               />
-              {errors.reps && <p className="text-red-500 text-sm mt-1">{errors.reps}</p>}
+              {errors.reps && <p className="text-warn-ink text-xs-warm mt-1">{errors.reps}</p>}
             </div>
           </div>
 
           <div>
-            <label htmlFor="weight" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="weight" className="block text-xs-warm font-medium text-ink mb-1">
               Weight (optional)
             </label>
             <div className="flex gap-2">
               <input
                 id="weight" type="number" name="weight" value={formData.weight}
                 onChange={handleChange} placeholder="0" step="0.5"
-                className={`flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition ${errors.weight ? 'border-red-500' : 'border-gray-300'}`}
+                className={`flex-1 px-3 py-2 bg-cream border-[0.5px] border-taupe rounded-input text-sm-warm text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-lower-body focus:border-lower-body transition ${errors.weight ? inputError : ''}`}
               />
               <select name="unit" value={formData.unit} onChange={handleChange}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                className="px-3 py-2 bg-cream border-[0.5px] border-taupe rounded-input text-sm-warm text-ink focus:outline-none focus:ring-2 focus:ring-lower-body focus:border-lower-body transition">
                 <option value="lbs">lbs</option>
                 <option value="kg">kg</option>
               </select>
             </div>
-            {errors.weight && <p className="text-red-500 text-sm mt-1">{errors.weight}</p>}
+            {errors.weight && <p className="text-warn-ink text-xs-warm mt-1">{errors.weight}</p>}
           </div>
 
           <div className="space-y-3 pt-2">
             <label className="flex items-center gap-3 cursor-pointer">
               <input type="checkbox" name="isMaxWeight" checked={formData.isMaxWeight}
                 onChange={handleChange}
-                className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                className="w-4 h-4 rounded border-taupe text-lower-body focus:ring-2 focus:ring-lower-body cursor-pointer"
               />
-              <span className="text-sm text-gray-700">Max Weight</span>
+              <span className="text-xs-warm text-ink">Max weight</span>
             </label>
             <label className="flex items-center gap-3 cursor-pointer">
               <input type="checkbox" name="isMaxReps" checked={formData.isMaxReps}
                 onChange={handleChange}
-                className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                className="w-4 h-4 rounded border-taupe text-lower-body focus:ring-2 focus:ring-lower-body cursor-pointer"
               />
-              <span className="text-sm text-gray-700">Max Reps</span>
+              <span className="text-xs-warm text-ink">Max reps</span>
             </label>
           </div>
 
           <div>
-            <label htmlFor="focus" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="focus" className="block text-xs-warm font-medium text-ink mb-1">
               Focus (optional)
             </label>
             <input
               id="focus" type="text" name="focus" value={formData.focus}
               onChange={handleChange} placeholder="e.g. Push, Pull, Compound"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+              className={inputBase}
             />
           </div>
 
           <div>
-            <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="notes" className="block text-xs-warm font-medium text-ink mb-1">
               Notes (optional)
             </label>
             <textarea
               id="notes" name="notes" value={formData.notes}
               onChange={handleChange} placeholder="Add any notes about this exercise..."
               rows="3"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition resize-none"
+              className={`${inputBase} resize-none`}
             />
           </div>
 
           <div className="flex gap-3 pt-4">
             <button type="submit"
-              className="flex-1 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-medium py-2 px-4 rounded-lg transition focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              className="flex-1 bg-ink hover:opacity-90 text-cream font-medium py-2 px-4 rounded-input transition focus:outline-none focus:ring-2 focus:ring-lower-body"
             >
-              {isEditing ? 'Update Exercise' : 'Log Exercise'}
+              {isEditing ? 'Update exercise' : 'Log exercise'}
             </button>
             {isEditing && (
               <button type="button" onClick={handleCancel}
-                className="flex-1 bg-gray-200 hover:bg-gray-300 active:bg-gray-400 text-gray-900 font-medium py-2 px-4 rounded-lg transition focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                className="flex-1 bg-beige hover:bg-taupe text-ink font-medium py-2 px-4 rounded-input transition focus:outline-none focus:ring-2 focus:ring-lower-body"
               >
                 Cancel
               </button>

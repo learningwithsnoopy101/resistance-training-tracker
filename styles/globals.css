@@ -2,6 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * v2 theme tokens mirrored as CSS variables.
+ * Source of truth is tailwind.config.js. These exist for cases where a raw CSS
+ * var is cleaner than a Tailwind class (e.g. custom focus rings, SVG fills).
+ */
+:root {
+  --color-page:          #FAF6EC;
+  --color-cream:         #FAF7F0;
+  --color-beige:         #F0EBE0;
+  --color-taupe:         #E0D9C4;
+  --color-taupe-emph:    #D4CCB8;
+  --color-ink:           #2C2820;
+  --color-ink-muted:     #6B6354;
+
+  --color-lower-body:    #8FA968;
+  --color-upper-body:    #6F89A8;
+  --color-abs-core:      #C8855E;
+  --color-peak-8:        #B89856;
+
+  --color-pr-fill:       #F0E3C2;
+  --color-pr-ink:        #6B5410;
+  --color-warn-fill:     #D4A296;
+  --color-warn-ink:      #B85040;
+  --color-success:       #8FA968;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -13,15 +39,19 @@ html {
 body {
   margin: 0;
   padding: 0;
+  background-color: var(--color-page);
+  color: var(--color-ink);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
+  font-size: 13px;
+  font-weight: 400;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 :focus-visible {
-  outline: 2px solid #3b82f6;
+  outline: 2px solid var(--color-lower-body);
   outline-offset: 2px;
 }
 
