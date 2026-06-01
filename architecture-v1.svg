@@ -1,0 +1,111 @@
+<svg viewBox="0 0 940 780" xmlns="http://www.w3.org/2000/svg" font-family="ui-sans-serif, system-ui, sans-serif">
+  <title>Resistance Tracker — all integration points</title>
+  <desc>App.jsx talks to Supabase PostgREST over HTTPS via supabase-js; plus local file import/export and GitHub Pages deploy. No other external integrations.</desc>
+  <rect x="0" y="0" width="940" height="780" fill="#ffffff"/>
+  <style>
+    .lbl { fill: #1f1d1a; font-size: 13px; font-weight: 600; }
+    .sub { fill: #6b6760; font-size: 10px; }
+    .q { font-size: 9.5px; font-weight: 600; }
+    .read { fill: #5d7a52; } .write { fill: #a4623f; } .local { fill: #8a6db0; }
+    .edge { fill: none; stroke-width: 1.6; }
+  </style>
+  <defs>
+    <marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#5d7a52"/></marker>
+    <marker id="aw" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#a4623f"/></marker>
+    <marker id="al" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#8a6db0"/></marker>
+    <marker id="an" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#8a857c"/></marker>
+  </defs>
+
+  <rect x="600" y="60" width="310" height="80" rx="8" fill="#f5f1e8" stroke="#c9c2b6"/>
+  <line x1="616" y1="80" x2="646" y2="80" class="edge read" marker-end="url(#ar)"/>
+  <text x="654" y="84" class="q read">READ — .select() → GET</text>
+  <line x1="616" y1="98" x2="646" y2="98" class="edge write" marker-end="url(#aw)"/>
+  <text x="654" y="102" class="q write">WRITE — insert/update/delete → POST/PATCH/DELETE</text>
+  <line x1="616" y1="116" x2="646" y2="116" class="edge local" marker-end="url(#al)"/>
+  <text x="654" y="120" class="q local">LOCAL — browser file I/O (no network)</text>
+  <line x1="616" y1="132" x2="646" y2="132" class="edge" stroke="#8a857c" stroke-dasharray="3 2" marker-end="url(#an)"/>
+  <text x="654" y="136" class="sub">props ↓ / callbacks ↑</text>
+
+  <rect x="30" y="80" width="300" height="210" rx="10" fill="#f3eee4" stroke="#c9c2b6"/>
+  <text x="180" y="102" text-anchor="middle" class="lbl">UI Components</text>
+  <text x="180" y="118" text-anchor="middle" class="sub">no Supabase import — props + callbacks</text>
+  <rect x="50" y="132" width="260" height="28" rx="6" fill="#fff" stroke="#cdd9c4"/>
+  <text x="180" y="150" text-anchor="middle" class="sub">ExerciseForm · List · Card · Suggested</text>
+  <rect x="50" y="166" width="260" height="28" rx="6" fill="#fff" stroke="#d6c0b0"/>
+  <text x="180" y="184" text-anchor="middle" class="sub">Analytics (reads exercises prop)</text>
+  <rect x="50" y="200" width="260" height="34" rx="6" fill="#fff" stroke="#cdb6d6"/>
+  <text x="180" y="217" text-anchor="middle" class="sub">DataPortability — export JSON / import</text>
+  <text x="180" y="229" text-anchor="middle" class="sub">Blob + FileReader (local file)</text>
+  <rect x="50" y="240" width="260" height="34" rx="6" fill="#fff" stroke="#cdb6d6"/>
+  <text x="180" y="257" text-anchor="middle" class="sub">BulkImport — paste/parse rows</text>
+  <text x="180" y="269" text-anchor="middle" class="sub">→ onImport callback to App</text>
+
+  <rect x="600" y="180" width="200" height="120" rx="10" fill="#e3e7df" stroke="#9fb091"/>
+  <text x="700" y="210" text-anchor="middle" class="lbl">App.jsx</text>
+  <text x="700" y="228" text-anchor="middle" class="sub">owns all state</text>
+  <text x="700" y="242" text-anchor="middle" class="sub">fromDb() / toDb()</text>
+  <text x="700" y="256" text-anchor="middle" class="sub">all queries inlined</text>
+  <text x="700" y="274" text-anchor="middle" class="sub">stamps user_id</text>
+
+  <rect x="600" y="430" width="200" height="56" rx="10" fill="#efe6d4" stroke="#c9b48f"/>
+  <text x="700" y="454" text-anchor="middle" class="lbl">supabase-js client</text>
+  <text x="700" y="472" text-anchor="middle" class="sub">project URL · publishable key (apikey)</text>
+
+  <rect x="570" y="552" width="260" height="40" rx="8" fill="#cfe0f0" stroke="#7f9dc0"/>
+  <text x="700" y="570" text-anchor="middle" class="lbl">PostgREST REST API</text>
+  <text x="700" y="584" text-anchor="middle" class="sub">HTTPS · JWT in headers</text>
+
+  <rect x="540" y="628" width="320" height="130" rx="10" fill="#dde3ec" stroke="#8fa1bb"/>
+  <text x="700" y="652" text-anchor="middle" class="lbl">Supabase — Postgres + Auth</text>
+  <text x="700" y="668" text-anchor="middle" class="sub">RLS: auth.uid() = user_id</text>
+  <rect x="560" y="678" width="280" height="32" rx="6" fill="#fff" stroke="#8fa1bb"/>
+  <text x="700" y="698" text-anchor="middle" class="sub">exercises — per-user log (RW)</text>
+  <rect x="560" y="716" width="280" height="30" rx="6" fill="#fff" stroke="#8fa1bb"/>
+  <text x="700" y="735" text-anchor="middle" class="sub">exercise_library — shared (read-only)</text>
+
+  <rect x="600" y="180" width="0" height="0"/>
+  <rect x="380" y="180" width="0" height="0"/>
+
+  <rect x="600" y="180" width="0" height="0"/>
+
+  <rect x="30" y="430" width="220" height="70" rx="10" fill="#efe7f5" stroke="#b79fd0"/>
+  <text x="140" y="456" text-anchor="middle" class="lbl">Local device / disk</text>
+  <text x="140" y="474" text-anchor="middle" class="sub">exercises-YYYY-MM-DD.json</text>
+  <text x="140" y="488" text-anchor="middle" class="sub">download &amp; upload — browser only</text>
+
+  <rect x="600" y="628" width="240" height="64" rx="10" fill="#e9e2d6" stroke="#c9c2b6" opacity="0"/>
+
+  <rect x="600" y="628" width="0" height="0"/>
+
+  <rect x="600" y="628" width="0" height="0"/>
+
+  <rect x="600" y="180" width="0" height="0"/>
+
+  <!-- Auth -->
+  <rect x="850" y="180" width="60" height="0"/>
+
+  <rect x="850" y="180" width="0" height="0"/>
+
+  <rect x="850" y="180" width="0" height="0"/>
+
+  <rect x="850" y="180" width="0" height="0"/>
+
+  <rect x="850" y="200" width="0" height="0"/>
+
+  <rect x="850" y="200" width="0" height="0"/>
+
+  <!-- edges -->
+  <line x1="600" y1="230" x2="332" y2="220" class="edge" stroke="#8a857c" stroke-dasharray="3 2" marker-end="url(#an)"/>
+  <text x="500" y="200" class="sub">props ↓ / callbacks ↑</text>
+
+  <path d="M675 300 V430" class="edge read" marker-end="url(#ar)"/>
+  <text x="470" y="408" class="q read">fetchExercises / fetchExerciseLibrary</text>
+  <path d="M725 300 V430" class="edge write" marker-end="url(#aw)"/>
+  <text x="760" y="408" class="q write">handleAdd/Delete</text>
+
+  <path d="M700 486 V552" class="edge read" marker-end="url(#ar)"/>
+  <path d="M700 592 V628" class="edge" stroke="#7f9dc0" stroke-width="1.6" marker-end="url(#an)"/>
+
+  <path d="M180 274 V440 H250" class="edge local" marker-end="url(#al)"/>
+  <text x="250" y="416" class="q local">Blob / FileReader</text>
+</svg>
