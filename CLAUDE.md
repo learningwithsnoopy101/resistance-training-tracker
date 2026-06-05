@@ -52,7 +52,7 @@ index.html               — single HTML shell
 components/
   Auth.jsx               — sign in / sign up UI
   ExerciseForm.jsx       — log/edit form (full mode only; quick mode was removed)
-  ExerciseList.jsx       — renders exercise cards grouped by date
+  ExerciseList.jsx       — renders exercise cards grouped by date, historical view
   ExerciseCard.jsx       — single exercise row with 4px type-color left bar
   TabNavigation.jsx      — pill-style nav (Log / Analytics / History)
   SuggestedSession.jsx   — "suggested for today" banner on Log tab
