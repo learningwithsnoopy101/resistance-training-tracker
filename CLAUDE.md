@@ -1,22 +1,46 @@
 # Resistance Training Tracker — CLAUDE.md
 
-This file is the entry point for any Claude session working on this codebase. Read it before touching any code.
+Read this file before touching any code.
+
+## Commands
+
+```bash
+npm run dev       # dev server → http://localhost:5173/resistance-training-tracker/
+npm run build     # production build
+npm run deploy    # build + push to gh-pages (GitHub Pages)
+```
+
+No test suite yet.
 
 ## Repo
 
 - **GitHub:** https://github.com/learningwithsnoopy101/resistance-training-tracker
 - **Live app:** https://learningwithsnoopy101.github.io/resistance-training-tracker
 - **Stack:** React 18 + Vite + Tailwind CSS + Supabase (Postgres + auth) + GitHub Pages
-- **Deploy:** `npm run deploy` (gh-pages)
-- **Dev:** `npm run dev` → http://localhost:5173/resistance-training-tracker/
 
 ## Project spec
 
-`DESIGN_SPEC.md` in the repo root is the authoritative v2 design doc. Always read it before starting new work. It covers:
-- Full color palette and design system tokens
-- Smart suggestion engine rules
-- Screen-by-screen information architecture
-- Build order with completed milestones marked ✅
+Read `DESIGN_SPEC.md` before starting new work. It covers the full color palette, suggestion engine rules, screen-by-screen IA, and build order.
+
+## Conventions
+
+- Use plain JS/JSX — no TypeScript
+- Use Tailwind utility classes only — no inline styles, no CSS modules
+- Use named exports for components
+- Use sentence case everywhere — never bold text heavier than weight 500
+- Map all DB fields snake_case ↔ camelCase app state via `fromDb` / `toDb` in App.jsx
+- Keep Supabase client as a singleton in `lib/supabase.js` — do not instantiate elsewhere
+- Look up `exercise_library` via the memoized `Map<name, libraryRow>` in ExerciseList — never re-query per card
+- Custom exercise names (not in library) get neutral gray styling — no pill, no sub-line
+
+## Avoid
+
+- Do not add TypeScript
+- Do not use Recharts or any chart library — use inline SVG
+- Do not use inline styles or CSS modules
+- Do not query `exercise_library` per card — use the memoized Map
+- Do not add new Supabase client instances — use the singleton in `lib/supabase.js`
+- Do not use dark mode patterns — not in scope for v2
 
 ## Architecture
 
@@ -42,7 +66,7 @@ lib/
 
 styles/
   globals.css            — Tailwind base + custom CSS variables
-tailwind.config.js       — warm palette tokens (see Design System below)
+tailwind.config.js       — warm palette tokens
 ```
 
 ## Supabase tables
@@ -95,9 +119,9 @@ All tokens live in `tailwind.config.js` and `styles/globals.css`.
 **Borders:** `border-taupe` (#E0D9C4), `border-taupe-dark` (#D4CCB8)  
 **Text:** `text-ink` (#4A3F32 warm brown), `text-ink-muted` (#6B6354)  
 **Border radius:** `rounded-card` (10px), `rounded-input` (6px)  
-**Typography classes:** `text-h1-warm` (18px/500), `text-h2-warm` (14px/500), `text-h3-warm` (13px/500), `text-sm-warm` (13px), `text-xs-warm` (12px), `text-tiny` (11px), `text-micro` (10px UPPERCASE)
+**Typography:** `text-h1-warm` (18px/500), `text-h2-warm` (14px/500), `text-h3-warm` (13px/500), `text-sm-warm` (13px), `text-xs-warm` (12px), `text-tiny` (11px), `text-micro` (10px UPPERCASE)
 
-**Exercise type colors (all use same pattern):**
+**Exercise type colors:**
 | Type | Accent | Fill | Ink |
 |---|---|---|---|
 | Lower Body | `bg-lower-body` #8FA968 | `bg-lower-body-fill` #E5EDD5 | `text-lower-body-ink` #4A5C36 |
@@ -106,8 +130,6 @@ All tokens live in `tailwind.config.js` and `styles/globals.css`.
 | Peak 8 | `bg-peak-8` #B89856 | `bg-peak-8-fill` #EBE0C2 | `text-peak-8-ink` #6B5410 |
 
 **Semantic:** `bg-pr-fill` / `text-pr-ink` (gold PR badge), `bg-warn-fill` / `text-warn-ink` (soft coral recovery warning)
-
-Design rule: sentence case everywhere, never bold text heavier than weight 500, shadows only on active tab.
 
 ## Suggestion engine (`lib/suggestions.js`)
 
@@ -118,46 +140,33 @@ Pure functions — no React, no Supabase. Key exports:
 - `buildSession(exercises, library, count)` — returns a session array of `count` exercises
 - `attachLastUsed(picks, exercises)` — enriches each pick with most-recent logged stats
 
-**Slot structure (hard ratio by TYPE, not soft bonus):**  
+**Slot structure (hard ratio by TYPE):**  
 `1 core + ceil((count-1)/2) lower + floor((count-1)/2) upper`  
 At default count=6: 3 lower / 2 upper / 1 core.
 
-**Core and Peak 8:** exempt from recovery rules (can be suggested daily). Peak 8 is excluded from suggestions entirely (tracked separately).
+Core and Peak 8 are exempt from recovery rules. Peak 8 is excluded from suggestions entirely.
 
 ## Routing
 
 HashRouter (GitHub Pages-friendly, no 404.html fallback needed).
 - `/` → Log tab (form + SuggestedSession + recent activity)
-- `/analytics` → Analytics/Progress screen
+- `/analytics` → Progress screen
 - `/history` → full ExerciseList
 
-## Build order status
+## Roadmap
 
 1. ✅ Theme/palette refactor
 2. ✅ Exercise card redesign
 3. ✅ Tab navigation
 4. ✅ Smart suggestion engine
-5. ⬜ **Progress screen** (next) — ship in 3 chunks:
+5. ⬜ **Progress screen** — ship in 3 chunks:
    - 5a: per-exercise progression line chart + exercise dropdown + estimated-1RM toggle (Epley: `weight × (1 + reps/30)`)
    - 5b: time-to-progress table (current vs previous working set, days + sessions to progress, plateau flag at 28+ days)
    - 5c: 3 KPI cards (consistency streak, this week's wins, active progression set) + weekly pulse card
-   - Tab label: "Analytics" → "Progress"; route can stay `/analytics` or rename to `/progress`
-   - Chart: **inline SVG** (not Recharts — bundle size not worth it for one chart)
 6. ⬜ History screen filtering by muscle group
 7. ⬜ Polish — transitions, empty states, mobile responsiveness
 
 ## Open decisions
 
-- **Peak 8 catalog:** currently empty in the DB. Add "Peak 8 Sprints" when Lisa confirms her protocol.
-- **Focus field:** currently free-text. Could be promoted to enum for filtering.
-- **Chart library:** resolved — use inline SVG, not Recharts.
-- **Dark mode:** not in scope for v2.
-
-## Key conventions
-
-- No TypeScript — plain JS/JSX throughout
-- Tailwind only — no inline styles, no CSS modules
-- Supabase client is a singleton in `lib/supabase.js`
-- All DB field names: snake_case. All app state: camelCase.
-- `exercise_library` lookup always via the memoized Map in ExerciseList, not re-queried per card
-- Custom exercise names (not in library) get neutral gray styling — no pill, no sub-line (graceful fallback)
+- **Peak 8 catalog:** currently empty in DB — add "Peak 8 Sprints" when Lisa confirms her protocol
+- **Focus field:** currently free-text — could be promoted to enum for filtering
