@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "deny": [
+      "Edit(lib/supabase.js)",
+      "Write(lib/supabase.js)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "file=$(jq -r '.tool_input.file_path // empty'); if echo \"$file\" | grep -q \"lib/supabase.js\"; then echo '{\"decision\":\"block\",\"reason\":\"lib/supabase.js is protected — do not edit directly\"}'; exit 2; fi"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "file=$(jq -r '.tool_input.file_path // empty'); if echo \"$file\" | grep -qE '\\.jsx$'; then cd /Users/lisamirkovic/resistance-training-tracker && npm run build 2>&1 | tail -5; fi",
+            "statusMessage": "Checking build..."
+          }
+        ]
+      }
+    ]
+  }
+}
