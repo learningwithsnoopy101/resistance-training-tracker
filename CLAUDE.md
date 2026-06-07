@@ -50,7 +50,8 @@ main.jsx                 — entry, wraps App in HashRouter (GitHub Pages-friend
 index.html               — single HTML shell
 
 components/
-  Auth.jsx               — sign in / sign up UI
+  Auth.jsx               — sign in / sign up / forgot password UI (3 modes: signin | signup | forgot)
+  ChangePassword.jsx     — modal for changing password (used from top bar + auto-opened on PASSWORD_RECOVERY)
   ExerciseForm.jsx       — log/edit form (full mode only; quick mode was removed)
   ExerciseList.jsx       — renders exercise cards grouped by date, historical view
   ExerciseCard.jsx       — single exercise row with 4px type-color left bar
@@ -106,6 +107,7 @@ RLS: users see only their own `exercises` rows; anyone authenticated can read `e
 
 - Auth state managed via `supabase.auth.onAuthStateChange`
 - On login: fetches all `exercises` (desc by date, created_at) + full `exercise_library`
+- On `PASSWORD_RECOVERY` event (user clicked reset link in email): auto-opens `ChangePassword` modal
 - `fromDb` / `toDb` helpers map snake_case DB fields ↔ camelCase app state
 - Library loaded once, passed down as prop; `ExerciseList` memoizes a `Map<name, libraryRow>` for O(1) lookup in cards
 - Edit: sets `editingId` + `editingData`, navigates to `/`
