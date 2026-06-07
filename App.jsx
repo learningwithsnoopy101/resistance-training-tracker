@@ -8,6 +8,7 @@ import ExerciseList from '@/components/ExerciseList';
 import TabNavigation from '@/components/TabNavigation';
 import Analytics from '@/components/Analytics';
 import SuggestedSession from '@/components/SuggestedSession';
+import { ChangePassword } from '@/components/ChangePassword';
 
 export default function App() {
   const [session, setSession] = useState(null);
@@ -18,6 +19,7 @@ export default function App() {
   const [editingId, setEditingId] = useState(null);
   const [editingData, setEditingData] = useState(null);
   const [copyData, setCopyData] = useState(null);
+  const [showChangePassword, setShowChangePassword] = useState(false);
 
   const navigate = useNavigate();
 
@@ -27,8 +29,11 @@ export default function App() {
       setSession(session);
       setSessionLoading(false);
     });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
+      if (event === 'PASSWORD_RECOVERY') {
+        setShowChangePassword(true);
+      }
     });
     return () => subscription.unsubscribe();
   }, []);
@@ -219,16 +224,26 @@ export default function App() {
   return (
     <div className="min-h-screen bg-page">
 
+      {showChangePassword && <ChangePassword onClose={() => setShowChangePassword(false)} />}
+
       {/* Top bar — title + desktop tabs + sign out */}
       <div className="bg-cream border-b-[0.5px] border-taupe px-4 py-3 flex items-center justify-between gap-4">
         <h1 className="text-h1-warm text-ink whitespace-nowrap">Resistance Tracker</h1>
         <TabNavigation className="hidden lg:inline-flex" />
-        <button
-          onClick={handleSignOut}
-          className="text-xs-warm text-ink-muted hover:text-ink transition whitespace-nowrap"
-        >
-          Sign out
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowChangePassword(true)}
+            className="text-xs-warm text-ink-muted hover:text-ink transition whitespace-nowrap"
+          >
+            Change password
+          </button>
+          <button
+            onClick={handleSignOut}
+            className="text-xs-warm text-ink-muted hover:text-ink transition whitespace-nowrap"
+          >
+            Sign out
+          </button>
+        </div>
       </div>
 
       {/* Mobile tab bar — sticky below the header */}
