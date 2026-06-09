@@ -19,13 +19,23 @@ Prevents Claude from editing `lib/supabase.js` under any circumstances.
 
 ---
 
-### hooks — PostToolUse
+### hooks — PostToolUse (1 of 2): .jsx build check
 **Trigger:** After any `.jsx` file is edited  
 **What it does:** Automatically runs `npm run build` in the background.
 
 **Why:** Catches broken JSX immediately after a file is saved — before it reaches `npm run deploy` and breaks the live site. Fail fast, fix while the change is fresh.
 
 **Note:** In the VS Code extension the build runs silently when it succeeds. You will only see output if the build fails. In terminal Claude Code (`claude` command) the output is visible.
+
+---
+
+### hooks — PostToolUse (2 of 2): mcp-server syntax check
+**Trigger:** After any `.js` file under `mcp-server/` is edited  
+**What it does:** Runs `node --check` on the edited file. This parses the file and reports any syntax error **without running it** — no server boot, no database calls, no side effects. On success it prints `node --check: ok`.
+
+**Why:** The MCP server is plain Node with no build step, so nothing else validates its syntax automatically. Without this, a typo (a missing brace, a bad import) wouldn't surface until you boot the server or run the smoke test, often as a cryptic runtime crash. This is the mcp-server equivalent of the `.jsx` build check above — instant feedback on save.
+
+**Cheap:** `node --check` only parses, so it's near-instant.
 
 ---
 

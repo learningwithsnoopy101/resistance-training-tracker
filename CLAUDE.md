@@ -157,16 +157,9 @@ HashRouter (GitHub Pages-friendly, no 404.html fallback needed).
 
 ## Roadmap
 
-1. ✅ Theme/palette refactor
-2. ✅ Exercise card redesign
-3. ✅ Tab navigation
-4. ✅ Smart suggestion engine
-5. ⬜ **Progress screen** — ship in 3 chunks:
-   - 5a: per-exercise progression line chart + exercise dropdown + estimated-1RM toggle (Epley: `weight × (1 + reps/30)`)
-   - 5b: time-to-progress table (current vs previous working set, days + sessions to progress, plateau flag at 28+ days)
-   - 5c: 3 KPI cards (consistency streak, this week's wins, active progression set) + weekly pulse card
-6. ⬜ History screen filtering by muscle group
-7. ⬜ Polish — transitions, empty states, mobile responsiveness
+See `ROADMAP.md` for the full, current build plan (MCP server, Progress screen,
+app↔MCP architecture, LLM features, CI/CD, AWS hosting). That file is the single
+source of truth for what's planned and done — do not duplicate phase lists here.
 
 ## Open decisions
 

@@ -25,6 +25,11 @@
             "type": "command",
             "command": "file=$(jq -r '.tool_input.file_path // empty'); if echo \"$file\" | grep -qE '\\.jsx$'; then cd /Users/lisamirkovic/resistance-training-tracker && npm run build 2>&1 | tail -5; fi",
             "statusMessage": "Checking build..."
+          },
+          {
+            "type": "command",
+            "command": "file=$(jq -r '.tool_input.file_path // empty'); if echo \"$file\" | grep -qE 'mcp-server/.*\\.js$'; then node --check \"$file\" && echo 'node --check: ok'; fi",
+            "statusMessage": "Checking mcp-server syntax..."
           }
         ]
       }
