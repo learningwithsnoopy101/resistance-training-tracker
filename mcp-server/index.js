@@ -6,7 +6,7 @@ import * as exercises from './tools/exercises.js';
 import * as library from './tools/library.js';
 import * as insights from './tools/insights.js';
 
-// MCP server entry. Registers all 9 tools and connects over stdio.
+// MCP server entry. Registers all 10 tools and connects over stdio.
 // Tools return { data, error }; we forward that as JSON text content so the
 // caller (the app or Claude) always sees a consistent shape.
 
@@ -105,6 +105,23 @@ server.registerTool(
     },
   },
   async (args) => asContent(await library.get_progress_by_muscle(args))
+);
+
+server.registerTool(
+  'add_library_exercise',
+  {
+    description: 'Add a new exercise to the shared catalog (admin only). Rejects duplicate names; type must be Upper Body, Lower Body, Abs, or Peak 8.',
+    inputSchema: {
+      user_id: z.string(),
+      name: z.string(),
+      type: z.string(),
+      primary_muscle: z.string(),
+      secondary_muscles: z.array(z.string()).nullable().optional(),
+      equipment: z.string().nullable().optional(),
+      movement_pattern: z.string().nullable().optional(),
+    },
+  },
+  async (args) => asContent(await library.add_library_exercise(args))
 );
 
 // ---- LLM: insights -------------------------------------------------------

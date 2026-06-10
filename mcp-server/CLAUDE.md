@@ -20,10 +20,10 @@ resistance training tracker. Runs locally over **stdio**. Built in Phase 1 of
 ## Layout
 
 ```
-index.js              registers all 9 tools, connects stdio transport
+index.js              registers all 10 tools, connects stdio transport
 tools/
   exercises.js        get_exercises, log_exercise, update_exercise, delete_exercise
-  library.js          get_exercise_library, get_progress_by_muscle
+  library.js          get_exercise_library, get_progress_by_muscle, add_library_exercise (admin-only)
   insights.js         generate_weekly_digest, generate_muscle_insight, explain_suggestion
 lib/
   supabase.js         service-role client (env vars only)

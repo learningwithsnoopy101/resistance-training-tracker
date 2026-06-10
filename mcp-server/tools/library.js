@@ -13,6 +13,63 @@ export async function get_exercise_library() {
   return { data, error: error ? error.message : null };
 }
 
+// add_library_exercise — insert a new catalog entry. The library is a shared
+// catalog, so this is admin-restricted: only the ADMIN_USER_ID (env) may write.
+const VALID_TYPES = ['Upper Body', 'Lower Body', 'Abs', 'Peak 8'];
+
+export async function add_library_exercise({
+  user_id,
+  name,
+  type,
+  primary_muscle,
+  secondary_muscles = null,
+  equipment = null,
+  movement_pattern = null,
+}) {
+  if (!user_id) return { data: null, error: 'user_id is required' };
+  if (!process.env.ADMIN_USER_ID) {
+    return { data: null, error: 'ADMIN_USER_ID is not configured on the server' };
+  }
+  if (user_id !== process.env.ADMIN_USER_ID) {
+    return { data: null, error: 'Only the admin can add library exercises' };
+  }
+  if (!name || !name.trim()) return { data: null, error: 'name is required' };
+  if (!VALID_TYPES.includes(type)) {
+    return { data: null, error: `type must be one of: ${VALID_TYPES.join(', ')}` };
+  }
+  if (!primary_muscle || !primary_muscle.trim()) {
+    return { data: null, error: 'primary_muscle is required' };
+  }
+
+  const trimmedName = name.trim();
+
+  // Reject duplicates (case-insensitive) before hitting the unique constraint.
+  const { data: existing, error: dupError } = await supabase
+    .from('exercise_library')
+    .select('name')
+    .ilike('name', trimmedName)
+    .maybeSingle();
+  if (dupError) return { data: null, error: dupError.message };
+  if (existing) {
+    return { data: null, error: `'${existing.name}' is already in the library` };
+  }
+
+  const { data, error } = await supabase
+    .from('exercise_library')
+    .insert({
+      name: trimmedName,
+      type,
+      primary_muscle: primary_muscle.trim(),
+      secondary_muscles,
+      equipment,
+      movement_pattern,
+    })
+    .select()
+    .single();
+
+  return { data, error: error ? error.message : null };
+}
+
 // get_progress_by_muscle — aggregate a user's sets/reps/sessions by primary
 // muscle group over an optional date range. Joins logged exercises to the
 // library by name to resolve each exercise's primary muscle.
