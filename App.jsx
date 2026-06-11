@@ -6,7 +6,7 @@ import Auth from '@/components/Auth';
 import ExerciseForm from '@/components/ExerciseForm';
 import ExerciseList from '@/components/ExerciseList';
 import TabNavigation from '@/components/TabNavigation';
-import Analytics from '@/components/Analytics';
+import { Analytics } from '@/components/Analytics';
 import SuggestedSession from '@/components/SuggestedSession';
 import { ChangePassword } from '@/components/ChangePassword';
 
@@ -15,6 +15,7 @@ export default function App() {
   const [sessionLoading, setSessionLoading] = useState(true);
   const [exercises, setExercises] = useState([]);
   const [exerciseLibrary, setExerciseLibrary] = useState([]);
+  const [insights, setInsights] = useState([]);
   const [loading, setLoading] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [editingData, setEditingData] = useState(null);
@@ -43,8 +44,26 @@ export default function App() {
     if (session) {
       fetchExercises();
       fetchExerciseLibrary();
+      fetchInsights();
     }
   }, [session]);
+
+  // Latest cached LLM insights (written weekly by the GitHub Actions generator)
+  const fetchInsights = async () => {
+    const { data } = await supabase
+      .from('insights')
+      .select('kind, content, generated_at')
+      .order('generated_at', { ascending: false });
+    if (data) {
+      setInsights(
+        data.map(row => ({
+          kind: row.kind,
+          content: row.content,
+          generatedAt: row.generated_at,
+        }))
+      );
+    }
+  };
 
   const fetchExerciseLibrary = async () => {
     const { data } = await supabase
@@ -166,6 +185,7 @@ export default function App() {
           copyData={copyData}
           onCopyConsumed={() => setCopyData(null)}
           exerciseLibrary={exerciseLibrary}
+          exercises={exercises}
         />
       </div>
       <div className="flex-1 min-w-0">
@@ -254,7 +274,7 @@ export default function App() {
       <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
         <Routes>
           <Route path="/" element={logPage} />
-          <Route path="/analytics" element={<Analytics exercises={exercises} />} />
+          <Route path="/analytics" element={<Analytics exercises={exercises} exerciseLibrary={exerciseLibrary} insights={insights} />} />
           <Route path="/history" element={historyPage} />
         </Routes>
       </div>

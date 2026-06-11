@@ -1,0 +1,40 @@
+# Weekly insights generation (Phase 4, Option A).
+# Generates the digest + muscle insight via the Anthropic API and writes them
+# to the Supabase `insights` table. The app reads that table via RLS — the API
+# key only ever exists in this runner.
+#
+# Schedule: Sunday 6pm Pacific = 02:00 UTC Monday (PST; 7pm during PDT).
+# Can also be run manually from the Actions tab (workflow_dispatch).
+
+name: Weekly insights
+
+on:
+  schedule:
+    - cron: '0 2 * * 1'
+  workflow_dispatch:
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: mcp-server/package-lock.json
+
+      - name: Install server dependencies
+        working-directory: mcp-server
+        run: npm ci
+
+      - name: Generate and store insights
+        working-directory: mcp-server
+        run: node scripts/generate-insights.js
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          INSIGHTS_USER_ID: ${{ secrets.INSIGHTS_USER_ID }}
+          LLM_PROVIDER: anthropic

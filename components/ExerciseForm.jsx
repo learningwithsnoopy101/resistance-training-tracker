@@ -17,9 +17,35 @@ const EMPTY_FORM = () => ({
 const inputBase = 'w-full px-3 py-2 bg-cream border-[0.5px] border-taupe rounded-input text-sm-warm text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-lower-body focus:border-lower-body transition';
 const inputError = 'border-warn-fill';
 
-export default function ExerciseForm({ onSubmit, editingData, onCancelEdit, copyData, onCopyConsumed, exerciseLibrary = [] }) {
+export default function ExerciseForm({ onSubmit, editingData, onCancelEdit, copyData, onCopyConsumed, exerciseLibrary = [], exercises = [] }) {
   const [formData, setFormData] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState({});
+  const [muscleFilter, setMuscleFilter] = useState('');
+
+  // Distinct primary muscles in the library, for the optional filter
+  const muscles = [...new Set(exerciseLibrary.map(ex => ex.primary_muscle).filter(Boolean))].sort();
+  const filteredLibrary = muscleFilter
+    ? exerciseLibrary.filter(ex => ex.primary_muscle === muscleFilter)
+    : exerciseLibrary;
+
+  // Pre-fill from the most recent logged session of this exercise
+  // (exercises arrive sorted newest first from App)
+  const handlePick = (name) => {
+    const libRow = exerciseLibrary.find(x => x.name === name);
+    if (!libRow) return;
+    const last = exercises.find(e => e.name === name);
+    setFormData(prev => ({
+      ...prev,
+      name: libRow.name,
+      type: libRow.type,
+      ...(last && {
+        sets: last.sets,
+        reps: last.reps,
+        weight: last.weight,
+        unit: last.unit,
+      }),
+    }));
+  };
 
   // When editing, populate the form
   useEffect(() => {
@@ -92,25 +118,47 @@ export default function ExerciseForm({ onSubmit, editingData, onCancelEdit, copy
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
+          <label className="block text-xs-warm font-medium text-ink mb-1">Muscle group (optional)</label>
+          <select
+            value={muscleFilter}
+            onChange={e => setMuscleFilter(e.target.value)}
+            className={inputBase}
+          >
+            <option value="">All muscles</option>
+            {muscles.map(m => (
+              <option key={m} value={m}>{m}</option>
+            ))}
+          </select>
+        </div>
+
+        <div>
           <label className="block text-xs-warm font-medium text-ink mb-1">Pick an exercise (optional)</label>
           <select
             onChange={e => {
-              const ex = exerciseLibrary.find(x => x.name === e.target.value);
-              if (ex) setFormData(prev => ({ ...prev, name: ex.name, type: ex.type }));
+              handlePick(e.target.value);
               e.target.value = '';
             }}
             className={inputBase}
             defaultValue=""
           >
-            <option value="" disabled>Select exercise to pre-fill...</option>
-            {['Lower Body', 'Upper Body', 'Abs', 'Peak 8'].map(type => (
-              <optgroup key={type} label={type}>
-                {exerciseLibrary.filter(ex => ex.type === type).map(ex => (
-                  <option key={ex.name} value={ex.name}>{ex.name}</option>
-                ))}
-              </optgroup>
-            ))}
+            <option value="" disabled>
+              {muscleFilter ? `Select a ${muscleFilter.toLowerCase()} exercise...` : 'Select exercise to pre-fill...'}
+            </option>
+            {['Lower Body', 'Upper Body', 'Abs', 'Peak 8'].map(type => {
+              const group = filteredLibrary.filter(ex => ex.type === type);
+              if (group.length === 0) return null;
+              return (
+                <optgroup key={type} label={type}>
+                  {group.map(ex => (
+                    <option key={ex.name} value={ex.name}>{ex.name}</option>
+                  ))}
+                </optgroup>
+              );
+            })}
           </select>
+          <p className="text-tiny text-ink-muted mt-1">
+            Picking pre-fills your last logged sets, reps, and weight
+          </p>
         </div>
 
         <div>

@@ -55,15 +55,20 @@ components/
   ExerciseForm.jsx       — log/edit form (full mode only; quick mode was removed)
   ExerciseList.jsx       — renders exercise cards grouped by date, historical view
   ExerciseCard.jsx       — single exercise row with 4px type-color left bar
-  TabNavigation.jsx      — pill-style nav (Log / Analytics / History)
+  TabNavigation.jsx      — pill-style nav (Log / Progress / History)
   SuggestedSession.jsx   — "suggested for today" banner on Log tab
-  Analytics.jsx          — Progress screen (step 5, partially built)
+  Analytics.jsx          — Progress screen: KPIs, chart, table, heatmap, insight cards, pulse
+  ProgressChart.jsx      — inline SVG progression line chart (weight / est. 1RM, gold PR dots)
+  ProgressTable.jsx      — time-to-progress table with plateau flags
+  MuscleHeatmap.jsx      — trailing-7-day muscle coverage grid
+  InsightCard.jsx        — renders cached LLM insights from the `insights` table
   BulkImport.jsx         — CSV import tool
   DataPortability.jsx    — export tool
 
 lib/
   supabase.js            — Supabase client (project URL + anon key)
   suggestions.js         — pure suggestion engine logic (no React)
+  progress.js            — pure progression math: Epley 1RM, streaks, wins, time-to-progress (no React)
 
 styles/
   globals.css            — Tailwind base + custom CSS variables
